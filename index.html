@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="CEO Command">
+<title>CEO Command Center</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#eef2f7;--card:#fff;--ink:#0f172a;--muted:#64748b;--line:#dbe2ea;
+  --nav:#0f172a;--nav2:#172554;--accent:#2563eb;--good:#15803d;--warn:#b45309;--bad:#b91c1c;
+  --shadow:0 10px 28px rgba(15,23,42,.08);--radius:18px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--bg);color:var(--ink)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.app-shell{min-height:100vh;display:grid;grid-template-columns:260px 1fr}
+.sidebar{background:linear-gradient(180deg,var(--nav),#111827 55%,#020617);color:#fff;padding:22px 16px;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{display:flex;gap:12px;align-items:center;margin-bottom:22px}
+.brand-logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#60a5fa,#22c55e);display:grid;place-items:center;font-size:24px;font-weight:900;color:#07111e}
+.brand h1{font-size:16px;margin:0;line-height:1.15}
+.brand small{color:#cbd5e1}
+.navbtn{width:100%;display:flex;align-items:center;gap:11px;color:#dbeafe;background:transparent;border:0;border-radius:12px;padding:12px 13px;margin:4px 0;text-align:left;font-weight:750}
+.navbtn:hover,.navbtn.active{background:#1e293b;color:#fff}
+.navbtn span:first-child{font-size:18px;width:24px}
+.sidebar-footer{font-size:12px;color:#94a3b8;line-height:1.5;margin-top:20px;padding:12px;border-top:1px solid #334155}
+.main{min-width:0}
+.topbar{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.topbar-left{display:flex;align-items:center;gap:12px}.menu{display:none;border:0;background:#e2e8f0;border-radius:10px;padding:8px 10px}
+.topbar-title h2{margin:0;font-size:20px}.topbar-title div{font-size:13px;color:var(--muted)}
+.topbar-actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:0;border-radius:11px;padding:10px 14px;font-weight:800;background:#e2e8f0;color:#172033}
+.btn.primary{background:var(--accent);color:#fff}.btn.good{background:#dcfce7;color:#166534}.btn.dark{background:#0f172a;color:#fff}.btn.bad{background:#fee2e2;color:#991b1b}
+.content{padding:20px;max-width:1500px;margin:auto}
+.page{display:none}.page.active{display:block}
+.hero{border-radius:22px;padding:24px;background:linear-gradient(135deg,#0f172a,#1d4ed8);color:#fff;box-shadow:var(--shadow);margin-bottom:18px}
+.hero-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:18px;align-items:center}
+.hero h2{margin:0 0 8px;font-size:31px}.hero p{margin:0;color:#dbeafe;line-height:1.55}
+.hero-score{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:18px}
+.hero-score b{font-size:38px;display:block}.hero-score span{font-size:13px;color:#dbeafe}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:17px}
+.card h3{margin:0 0 12px;font-size:17px}.card h4{margin:0 0 8px}
+.muted{color:var(--muted)}.small{font-size:12px}.big{font-size:30px;font-weight:900}
+.kpi{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.pill{display:inline-block;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:900}
+.pill.good{background:#dcfce7;color:#166534}.pill.warn{background:#fef3c7;color:#92400e}.pill.bad{background:#fee2e2;color:#991b1b}.pill.neutral{background:#e2e8f0;color:#334155}
+.metric{border:1px solid var(--line);border-radius:14px;padding:14px}.metric b{display:block;font-size:25px}.metric span{font-size:12px;color:var(--muted)}
+.section-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:22px 0 10px}.section-title h2{margin:0;font-size:20px}
+input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:10px 11px;background:#fff;color:#0f172a}
+textarea{min-height:82px;resize:vertical}
+label{display:block;font-size:12px;color:#475569;font-weight:800;margin:8px 0 5px}
+.row{display:flex;gap:9px;align-items:center}.row>*{flex:1}
+.list{display:flex;flex-direction:column;gap:9px}
+.item{border:1px solid var(--line);border-radius:13px;padding:12px;background:#fff}
+.item-line{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.item-title{font-weight:850}.item-meta{font-size:12px;color:var(--muted);margin-top:4px}
+.checkline{display:flex;align-items:flex-start;gap:10px}.checkline input{width:20px;height:20px;margin-top:2px;flex:0 0 auto}
+.progress{height:10px;background:#e2e8f0;border-radius:999px;overflow:hidden}.progress>div{height:100%;background:linear-gradient(90deg,#2563eb,#22c55e);width:0}
+.alert{border-left:5px solid #94a3b8;background:#f8fafc;padding:12px 14px;border-radius:10px}.alert.bad{border-left-color:#dc2626;background:#fef2f2}.alert.warn{border-left-color:#f59e0b;background:#fffbeb}.alert.good{border-left-color:#22c55e;background:#f0fdf4}
+.business-card{position:relative;overflow:hidden}.business-card:before{content:"";position:absolute;inset:0 auto 0 0;width:5px;background:#2563eb}
+.business-card .linkrow{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.timeline .item{display:grid;grid-template-columns:110px 28px 1fr;gap:10px;align-items:start}.timeline-time{font-weight:900;font-size:13px}.timeline-dot{width:14px;height:14px;border-radius:50%;background:#2563eb;margin-top:3px}
+.priority-score{min-width:48px;text-align:center;font-weight:900;font-size:18px}
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:680px}th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}th{background:#f8fafc}
+.modal{position:fixed;inset:0;background:rgba(2,6,23,.65);display:none;align-items:center;justify-content:center;padding:20px;z-index:100}
+.modal.show{display:flex}.modal-card{max-width:680px;width:100%;max-height:90vh;overflow:auto;background:#fff;border-radius:20px;padding:20px}
+.toast{position:fixed;right:18px;bottom:18px;background:#0f172a;color:#fff;padding:13px 16px;border-radius:12px;box-shadow:var(--shadow);display:none;z-index:200;max-width:360px}.toast.show{display:block}
+.quickadd{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:8px;align-items:end}
+.score-big{text-align:center;padding:18px;border-radius:16px;background:#f8fafc;border:1px solid var(--line)}.score-big b{font-size:42px}.score-big span{display:block;color:var(--muted)}
+footer{padding:24px 20px 36px;color:#94a3b8;text-align:center;font-size:12px}
+@media(max-width:1050px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}.quickadd{grid-template-columns:1fr 1fr}.quickadd .wide{grid-column:1/-1}}
+@media(max-width:760px){
+ .app-shell{grid-template-columns:1fr}.sidebar{position:fixed;z-index:60;width:280px;left:-290px;transition:.2s}.sidebar.open{left:0}.menu{display:inline-block}
+ .topbar{padding:10px 12px}.topbar-actions .btn:not(.keep){display:none}.content{padding:12px}
+ .hero-grid,.g2,.g3,.g4{grid-template-columns:1fr}.hero{padding:18px}.hero h2{font-size:25px}
+ .timeline .item{grid-template-columns:85px 20px 1fr}.row{flex-direction:column;align-items:stretch}.quickadd{grid-template-columns:1fr}
+ .topbar-title h2{font-size:17px}
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+<aside class="sidebar" id="sidebar">
+  <div class="brand"><div class="brand-logo">C</div><div><h1>CEO COMMAND CENTER</h1><small>Your Life + Business OS</small></div></div>
+  <button class="navbtn active" data-page="home"><span>🏠</span>Command Center</button>
+  <button class="navbtn" data-page="today"><span>🗓️</span>My Day</button>
+  <button class="navbtn" data-page="tasks"><span>🎯</span>Priority Engine</button>
+  <button class="navbtn" data-page="business"><span>🏢</span>Businesses</button>
+  <button class="navbtn" data-page="kpi"><span>📊</span>KPI + Payouts</button>
+  <button class="navbtn" data-page="money"><span>💵</span>Money</button>
+  <button class="navbtn" data-page="marketing"><span>📣</span>Marketing</button>
+  <button class="navbtn" data-page="people"><span>👥</span>People + Follow-Up</button>
+  <button class="navbtn" data-page="decisions"><span>🧠</span>Decision Center</button>
+  <button class="navbtn" data-page="brief"><span>⚡</span>CEO Brief</button>
+  <button class="navbtn" data-page="settings"><span>⚙️</span>Settings + Backup</button>
+  <div class="sidebar-footer">Built to reduce what reaches you. Anything entered here stays on this device unless you export it or connect an outside system.</div>
+</aside>
+
+<main class="main">
+<header class="topbar">
+ <div class="topbar-left"><button class="menu" id="menuBtn">☰</button><div class="topbar-title"><h2 id="pageTitle">Command Center</h2><div id="clockLine"></div></div></div>
+ <div class="topbar-actions">
+   <button class="btn keep" onclick="openQuickTask()">＋ Task</button>
+   <button class="btn primary keep" onclick="showPage('brief')">CEO Brief</button>
+ </div>
+</header>
+
+<div class="content">
+
+<section class="page active" id="page-home">
+ <div class="hero">
+  <div class="hero-grid">
+   <div><h2 id="heroGreeting">Good day.</h2><p id="heroText">Your job is not to touch everything. Your job is to see what matters, decide fast, and make sure the right person owns the next move.</p></div>
+   <div class="hero-score"><b id="controlScore">—</b><span>CEO Control Score</span><div class="small" id="controlScoreText" style="margin-top:6px"></div></div>
+  </div>
+ </div>
+ <div class="grid g4">
+   <div class="metric"><b id="criticalCount">0</b><span>Critical items</span></div>
+   <div class="metric"><b id="dueTodayCount">0</b><span>Tasks due today</span></div>
+   <div class="metric"><b id="businessRiskCount">0</b><span>Businesses needing attention</span></div>
+   <div class="metric"><b id="monthRevenueTotal">$0</b><span>Revenue entered this month</span></div>
+ </div>
+ <div class="grid g2" style="margin-top:14px">
+   <div class="card"><div class="section-title" style="margin:0 0 10px"><h2>🚨 What Needs You</h2><button class="btn" onclick="showPage('tasks')">Open Tasks</button></div><div id="needsYou"></div></div>
+   <div class="card"><div class="section-title" style="margin:0 0 10px"><h2>✅ What You Can Ignore</h2></div><div id="safeToIgnore"></div></div>
+ </div>
+ <div class="section-title"><h2>Business Pulse</h2><button class="btn" onclick="showPage('business')">Manage Businesses</button></div>
+ <div class="grid g3" id="businessPulse"></div>
+ <div class="grid g2" style="margin-top:14px">
+   <div class="card"><h3>🎯 Next Best Move</h3><div id="nextBestMove"></div></div>
+   <div class="card"><h3>🌙 Close-the-Day Check</h3><div id="closeDayMini"></div></div>
+ </div>
+</section>
+
+<section class="page" id="page-today">
+ <div class="section-title"><h2>My Day — From Wake-Up to Close</h2><button class="btn" onclick="resetTodayChecks()">Reset Today</button></div>
+ <div class="card"><div class="kpi"><div><b id="todayProgressText">0% complete</b><div class="muted small">Keep the plan realistic. Protect focused work and sleep.</div></div><span class="pill neutral" id="todayStatusPill">START</span></div><div class="progress" style="margin-top:10px"><div id="todayProgressBar"></div></div></div>
+ <div class="timeline list" id="dailyTimeline" style="margin-top:14px"></div>
+ <div class="section-title"><h2>End-of-Day Shutdown</h2></div>
+ <div class="card"><div class="list" id="shutdownList"></div></div>
+</section>
+
+<section class="page" id="page-tasks">
+ <div class="section-title"><h2>Priority Engine</h2><button class="btn primary" onclick="openQuickTask()">Add Task</button></div>
+ <div class="card">
+  <div class="quickadd">
+   <div class="wide"><label>Task</label><input id="taskTitle" placeholder="What needs to happen?"></div>
+   <div><label>Business</label><select id="taskBusiness"></select></div>
+   <div><label>Urgency</label><select id="taskUrgency"><option value="5">Critical</option><option value="4">High</option><option value="3" selected>Normal</option><option value="2">Low</option><option value="1">Someday</option></select></div>
+   <div><label>Impact</label><select id="taskImpact"><option value="5">Very High</option><option value="4">High</option><option value="3" selected>Normal</option><option value="2">Low</option><option value="1">Minor</option></select></div>
+   <button class="btn primary" onclick="addTaskFromForm()">Add</button>
+  </div>
+ </div>
+ <div class="grid g3" style="margin-top:14px">
+  <div class="card"><h3>🔥 Do / Decide Now</h3><div id="tasksNow" class="list"></div></div>
+  <div class="card"><h3>➡️ Delegate / Follow Up</h3><div id="tasksDelegate" class="list"></div></div>
+  <div class="card"><h3>🧊 Later / Low Risk</h3><div id="tasksLater" class="list"></div></div>
+ </div>
+</section>
+
+<section class="page" id="page-business">
+ <div class="section-title"><h2>Business Control Room</h2><button class="btn" onclick="addBusinessPrompt()">Add Business</button></div>
+ <div class="grid g2" id="businessCards"></div>
+</section>
+
+<section class="page" id="page-kpi">
+ <div class="section-title"><h2>KPI + Incentive Center</h2><button class="btn" onclick="addKpiEntryPrompt()">Add Daily KPI</button></div>
+ <div class="grid g3" id="kpiSummaryCards"></div>
+ <div class="section-title"><h2>Current Month</h2></div>
+ <div class="tablewrap"><table><thead><tr><th>Employee</th><th>Business</th><th>Reports</th><th>Monthly KPI</th><th>Performance</th><th>Projected Payout</th></tr></thead><tbody id="monthlyKpiRows"></tbody></table></div>
+ <div class="section-title"><h2>Daily KPI History</h2></div>
+ <div class="tablewrap"><table><thead><tr><th>Date</th><th>Employee</th><th>Business</th><th>Score</th><th>Type</th><th></th></tr></thead><tbody id="dailyKpiRows"></tbody></table></div>
+</section>
+
+<section class="page" id="page-money">
+ <div class="section-title"><h2>Money Dashboard</h2><button class="btn primary" onclick="addMoneyPrompt()">Add Daily Numbers</button></div>
+ <div class="grid g4">
+  <div class="metric"><b id="moneyRevenue">$0</b><span>Revenue this month</span></div>
+  <div class="metric"><b id="moneyExpense">$0</b><span>Expenses this month</span></div>
+  <div class="metric"><b id="moneyNet">$0</b><span>Net entered</span></div>
+  <div class="metric"><b id="moneyDays">0</b><span>Days entered</span></div>
+ </div>
+ <div class="section-title"><h2>By Business</h2></div><div class="grid g3" id="moneyByBusiness"></div>
+ <div class="section-title"><h2>Recent Entries</h2></div><div class="tablewrap"><table><thead><tr><th>Date</th><th>Business</th><th>Revenue</th><th>Expense</th><th>Notes</th><th></th></tr></thead><tbody id="moneyRows"></tbody></table></div>
+</section>
+
+<section class="page" id="page-marketing">
+ <div class="section-title"><h2>Marketing Monitor</h2><button class="btn primary" onclick="addMarketingPrompt()">Add Snapshot</button></div>
+ <div class="grid g3" id="marketingCards"></div>
+ <div class="section-title"><h2>Recent Snapshots</h2></div><div class="tablewrap"><table><thead><tr><th>Date</th><th>Business</th><th>Channel</th><th>Spend</th><th>Leads</th><th>Conversions</th><th>Cost / Conversion</th><th>Status</th></tr></thead><tbody id="marketingRows"></tbody></table></div>
+</section>
+
+<section class="page" id="page-people">
+ <div class="section-title"><h2>People + Follow-Up</h2><button class="btn primary" onclick="addPeoplePrompt()">Add Follow-Up</button></div>
+ <div class="grid g3">
+  <div class="card"><h3>Today / Overdue</h3><div id="peopleNow" class="list"></div></div>
+  <div class="card"><h3>This Week</h3><div id="peopleWeek" class="list"></div></div>
+  <div class="card"><h3>Watching</h3><div id="peopleWatch" class="list"></div></div>
+ </div>
+</section>
+
+<section class="page" id="page-decisions">
+ <div class="section-title"><h2>Decision Center</h2><button class="btn primary" onclick="addDecisionPrompt()">Add Decision</button></div>
+ <div class="grid g2" id="decisionCards"></div>
+</section>
+
+<section class="page" id="page-brief">
+ <div class="section-title"><h2>CEO Brief</h2><button class="btn dark" onclick="copyBrief()">Copy for ChatGPT</button></div>
+ <div class="card"><h3>Morning / Anytime Brief</h3><div id="briefContent"></div></div>
+ <div class="grid g2" style="margin-top:14px">
+   <div class="card"><h3>Top 3 CEO Moves</h3><div id="briefTop3"></div></div>
+   <div class="card"><h3>Delegation List</h3><div id="briefDelegate"></div></div>
+ </div>
+</section>
+
+<section class="page" id="page-settings">
+ <div class="section-title"><h2>Settings + Backup</h2></div>
+ <div class="grid g2">
+  <div class="card"><h3>Portal Links</h3><div id="portalSettings"></div><button class="btn primary" onclick="savePortalSettings()">Save Links</button></div>
+  <div class="card"><h3>Backup Your Command Center</h3><p class="muted">Export regularly. This version stores data on this device for speed and privacy.</p><div class="row"><button class="btn dark" onclick="exportData()">Export Backup</button><label class="btn" style="text-align:center;margin:0">Import Backup<input id="importFile" type="file" accept=".json" style="display:none" onchange="importData(this.files[0])"></label></div></div>
+  <div class="card"><h3>Install App</h3><p class="muted">Install it on your phone or desktop so it opens like a standalone app.</p><button class="btn primary" id="installBtn" onclick="installApp()">Install CEO Command Center</button></div>
+  <div class="card"><h3>Privacy / Reset</h3><p class="muted">No API keys or passwords should ever be stored in this front-end app.</p><button class="btn bad" onclick="resetAllData()">Erase Local App Data</button></div>
+ </div>
+</section>
+
+</div>
+<footer>CEO Command Center • Built for one-screen control across life, companies, people, money, marketing and execution.</footer>
+</main>
+</div>
+
+<div class="modal" id="modal"><div class="modal-card"><div class="item-line"><h3 id="modalTitle" style="margin:0">Add</h3><button class="btn" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const APP_KEY="pone_ceo_command_center_v1";
+const todayISO=()=>new Date().toISOString().slice(0,10);
+const monthKey=()=>new Date().toISOString().slice(0,7);
+const money=n=>new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(Number(n||0));
+const escapeHtml=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+const uid=()=>Math.random().toString(36).slice(2)+Date.now().toString(36);
+const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const fmtDate=s=>{if(!s)return"—";const d=new Date(s+"T12:00:00");return d.toLocaleDateString(undefined,{month:"short",day:"numeric"})};
+
+const defaultData={
+ businesses:[
+  {id:"furryland",name:"Furryland Ohio",type:"Mobile Grooming",status:"watch",ownerNeed:"Staffing, cash controls, vans, booking and KPI",kpi:86,link:"https://ohio-furryland-manager-reporting.pages.dev"},
+  {id:"squareone",name:"Square One Management",type:"Property Management",status:"watch",ownerNeed:"Leasing, unit turns, maintenance, money collection and KPI",kpi:88,link:""},
+  {id:"spincycle",name:"Spin Cycle Laundromat",type:"Laundromat",status:"good",ownerNeed:"Revenue, customer traffic, advertising and operations",kpi:92,link:""}
+ ],
+ tasks:[
+  {id:uid(),title:"Review today’s highest-risk business issue",business:"CEO",urgency:5,impact:5,owner:"Pone",due:todayISO(),status:"open",delegate:false},
+  {id:uid(),title:"Confirm Square One daily/monthly KPI system is working",business:"Square One Management",urgency:5,impact:5,owner:"Pone",due:todayISO(),status:"open",delegate:false},
+  {id:uid(),title:"Review Furryland staffing, route and cash exceptions",business:"Furryland Ohio",urgency:4,impact:5,owner:"Manager",due:todayISO(),status:"open",delegate:true}
+ ],
+ timeline:[
+  {id:"wake",time:"8:00 AM",task:"Wake up, water, breakfast, get ready",done:false},
+  {id:"brief",time:"8:30 AM",task:"Open CEO Brief — review only exceptions and Top 3",done:false},
+  {id:"money",time:"8:45 AM",task:"15-minute money check: bank, urgent bills, yesterday revenue",done:false},
+  {id:"delegate",time:"9:00 AM",task:"Send/assign critical follow-ups; do not do employees’ jobs",done:false},
+  {id:"deep",time:"9:30 AM",task:"90-minute CEO focus block — highest-value decision/project",done:false},
+  {id:"ops",time:"11:00 AM",task:"Business pulse: Square One, Furryland, Spin Cycle exceptions only",done:false},
+  {id:"lunch",time:"12:00 PM",task:"Lunch / reset",done:false},
+  {id:"growth",time:"1:00 PM",task:"Growth block: ads, leasing, customer acquisition or expansion",done:false},
+  {id:"people",time:"2:00 PM",task:"People block: hiring, coaching, HR follow-ups",done:false},
+  {id:"admin",time:"3:00 PM",task:"Approvals, calls, paperwork and decision queue",done:false},
+  {id:"store",time:"4:30 PM",task:"Spin Cycle / field operations as needed",done:false},
+  {id:"close",time:"9:30 PM",task:"Closeout: revenue, incidents, tomorrow’s Top 3",done:false},
+  {id:"sleep",time:"11:30 PM",task:"Stop work and prepare for sleep",done:false}
+ ],
+ shutdown:[
+  {id:"s1",task:"All critical money/cash issues accounted for",done:false},
+  {id:"s2",task:"Any injury, customer, vehicle or property emergency escalated",done:false},
+  {id:"s3",task:"Tomorrow’s Top 3 selected",done:false},
+  {id:"s4",task:"Unfinished work assigned to an owner with a deadline",done:false},
+  {id:"s5",task:"Stop working — protect sleep",done:false}
+ ],
+ kpis:[],
+ money:[],
+ marketing:[],
+ people:[],
+ decisions:[],
+ portalLinks:{furryland:"https://ohio-furryland-manager-reporting.pages.dev",squareone:"",spincycle:""},
+ settings:{managerBonusMax:0}
+};
+
+let data=loadData();
+let deferredInstall=null;
+
+function loadData(){
+ try{
+  const raw=localStorage.getItem(APP_KEY);
+  if(!raw)return structuredClone(defaultData);
+  const d=JSON.parse(raw);
+  return Object.assign(structuredClone(defaultData),d);
+ }catch(e){return structuredClone(defaultData)}
+}
+function saveData(){localStorage.setItem(APP_KEY,JSON.stringify(data));renderAll()}
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2600)}
+function openModal(title,html){document.getElementById("modalTitle").textContent=title;document.getElementById("modalBody").innerHTML=html;document.getElementById("modal").classList.add("show")}
+function closeModal(){document.getElementById("modal").classList.remove("show")}
+function showPage(name){
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+ document.getElementById("page-"+name)?.classList.add("active");
+ document.querySelectorAll(".navbtn").forEach(x=>x.classList.toggle("active",x.dataset.page===name));
+ const btn=[...document.querySelectorAll(".navbtn")].find(x=>x.dataset.page===name);
+ document.getElementById("pageTitle").textContent=btn?btn.textContent.trim():"CEO Command Center";
+ document.getElementById("sidebar").classList.remove("open");
+ if(name==="brief")renderBrief();
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+document.querySelectorAll(".navbtn").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+document.getElementById("menuBtn").onclick=()=>document.getElementById("sidebar").classList.toggle("open");
+
+function taskScore(t){return Number(t.urgency||1)*2+Number(t.impact||1)*2+(t.due&&t.due<=todayISO()?3:0)}
+function statusPill(s){
+ if(s==="good")return'<span class="pill good">GOOD</span>';
+ if(s==="risk")return'<span class="pill bad">ACTION</span>';
+ return'<span class="pill warn">WATCH</span>';
+}
+function controlScore(){
+ const open=data.tasks.filter(t=>t.status!=="done"),critical=open.filter(t=>taskScore(t)>=20).length;
+ const bizRisk=data.businesses.filter(b=>b.status!=="good").length;
+ const shutdownDone=data.shutdown.filter(x=>x.done).length/data.shutdown.length;
+ return clamp(Math.round(100-critical*8-bizRisk*5+shutdownDone*8),35,100);
+}
+function currentMonthMoney(){return data.money.filter(x=>String(x.date||"").startsWith(monthKey()))}
+function monthRevenue(){return currentMonthMoney().reduce((a,x)=>a+Number(x.revenue||0),0)}
+function renderHome(){
+ const h=new Date().getHours();document.getElementById("heroGreeting").textContent=(h<12?"Good morning":h<17?"Good afternoon":"Good evening")+", Pone.";
+ const open=data.tasks.filter(t=>t.status!=="done").sort((a,b)=>taskScore(b)-taskScore(a));
+ const critical=open.filter(t=>taskScore(t)>=20);
+ document.getElementById("criticalCount").textContent=critical.length;
+ document.getElementById("dueTodayCount").textContent=open.filter(t=>!t.due||t.due<=todayISO()).length;
+ document.getElementById("businessRiskCount").textContent=data.businesses.filter(b=>b.status!=="good").length;
+ document.getElementById("monthRevenueTotal").textContent=money(monthRevenue());
+ const cs=controlScore();document.getElementById("controlScore").textContent=cs+"/100";
+ document.getElementById("controlScoreText").textContent=cs>=90?"Strong control. Stay focused on exceptions.":cs>=75?"Good, but a few issues need ownership.":"Too much is reaching you. Delegate and close critical loops.";
+ document.getElementById("needsYou").innerHTML=critical.length?critical.slice(0,5).map(taskHtml).join(""):'<div class="alert good">No critical task is currently flagged. Keep your attention on the next best move.</div>';
+ const goodBiz=data.businesses.filter(b=>b.status==="good");
+ document.getElementById("safeToIgnore").innerHTML=goodBiz.length?goodBiz.map(b=>`<div class="alert good"><b>${escapeHtml(b.name)}</b><div class="small muted">Status is good. Do not spend CEO time here unless new information changes.</div></div>`).join(""):'<div class="muted">Nothing is fully green yet.</div>';
+ document.getElementById("businessPulse").innerHTML=data.businesses.map(b=>`<div class="card business-card"><div class="kpi"><div><h3>${escapeHtml(b.name)}</h3><div class="muted small">${escapeHtml(b.type)}</div></div>${statusPill(b.status)}</div><div style="margin-top:10px"><b>${b.kpi||"—"}/100</b> <span class="small muted">current control score</span></div><div class="small muted" style="margin-top:7px">${escapeHtml(b.ownerNeed||"")}</div></div>`).join("");
+ const next=open[0];document.getElementById("nextBestMove").innerHTML=next?`<div class="alert ${taskScore(next)>=20?"bad":"warn"}"><b>${escapeHtml(next.title)}</b><div class="small muted">${escapeHtml(next.business)} • Priority ${taskScore(next)}</div><div style="margin-top:10px"><button class="btn good" onclick="completeTask('${next.id}')">Mark Done</button></div></div>`:'<div class="alert good">No open tasks. Add the next meaningful CEO move.</div>';
+ const left=data.shutdown.filter(x=>!x.done);document.getElementById("closeDayMini").innerHTML=left.length?`<b>${left.length} shutdown checks remaining</b><div class="small muted" style="margin-top:5px">${escapeHtml(left[0].task)}</div><button class="btn" style="margin-top:10px" onclick="showPage('today')">Open My Day</button>`:'<div class="alert good">Shutdown checklist complete.</div>';
+}
+function taskHtml(t){return`<div class="item"><div class="item-line"><div><div class="item-title">${escapeHtml(t.title)}</div><div class="item-meta">${escapeHtml(t.business||"CEO")} • Due ${fmtDate(t.due)} ${t.delegate?"• Delegate":""}</div></div><div class="priority-score">${taskScore(t)}</div></div><div class="linkrow" style="margin-top:8px"><button class="btn good" onclick="completeTask('${t.id}')">Done</button><button class="btn" onclick="toggleDelegate('${t.id}')">${t.delegate?"Undelegate":"Delegate"}</button><button class="btn bad" onclick="deleteTask('${t.id}')">Delete</button></div></div>`}
+function renderToday(){
+ const done=data.timeline.filter(x=>x.done).length,pct=Math.round(done/data.timeline.length*100);
+ document.getElementById("todayProgressText").textContent=pct+"% complete";document.getElementById("todayProgressBar").style.width=pct+"%";
+ const p=document.getElementById("todayStatusPill");p.textContent=pct===100?"COMPLETE":pct>=60?"ON TRACK":"IN PROGRESS";p.className="pill "+(pct===100?"good":pct>=60?"warn":"neutral");
+ document.getElementById("dailyTimeline").innerHTML=data.timeline.map(x=>`<div class="item"><div class="timeline-time">${escapeHtml(x.time)}</div><div class="timeline-dot" style="${x.done?"background:#22c55e":""}"></div><label class="checkline" style="margin:0"><input type="checkbox" ${x.done?"checked":""} onchange="toggleTimeline('${x.id}',this.checked)"><div><div class="item-title" style="${x.done?"text-decoration:line-through;color:#64748b":""}">${escapeHtml(x.task)}</div></div></label></div>`).join("");
+ document.getElementById("shutdownList").innerHTML=data.shutdown.map(x=>`<label class="checkline item"><input type="checkbox" ${x.done?"checked":""} onchange="toggleShutdown('${x.id}',this.checked)"><div class="item-title">${escapeHtml(x.task)}</div></label>`).join("");
+}
+function renderTasks(){
+ const open=data.tasks.filter(t=>t.status!=="done").sort((a,b)=>taskScore(b)-taskScore(a));
+ document.getElementById("tasksNow").innerHTML=open.filter(t=>!t.delegate&&taskScore(t)>=16).map(taskHtml).join("")||'<div class="muted small">Nothing here.</div>';
+ document.getElementById("tasksDelegate").innerHTML=open.filter(t=>t.delegate||((t.owner||"Pone")!=="Pone"&&taskScore(t)>=12)).map(taskHtml).join("")||'<div class="muted small">Nothing here.</div>';
+ document.getElementById("tasksLater").innerHTML=open.filter(t=>!t.delegate&&taskScore(t)<16).map(taskHtml).join("")||'<div class="muted small">Nothing here.</div>';
+ const sel=document.getElementById("taskBusiness");sel.innerHTML='<option>CEO</option>'+data.businesses.map(b=>`<option>${escapeHtml(b.name)}</option>`).join("");
+}
+function addTaskFromForm(){
+ const title=document.getElementById("taskTitle").value.trim();if(!title)return toast("Enter a task first.");
+ data.tasks.push({id:uid(),title,business:document.getElementById("taskBusiness").value,urgency:+document.getElementById("taskUrgency").value,impact:+document.getElementById("taskImpact").value,owner:"Pone",due:todayISO(),status:"open",delegate:false});
+ document.getElementById("taskTitle").value="";saveData();toast("Task added.");
+}
+function openQuickTask(){showPage("tasks");setTimeout(()=>document.getElementById("taskTitle").focus(),200)}
+function completeTask(id){const t=data.tasks.find(x=>x.id===id);if(t)t.status="done";saveData();toast("Task completed.");}
+function toggleDelegate(id){const t=data.tasks.find(x=>x.id===id);if(t)t.delegate=!t.delegate;saveData()}
+function deleteTask(id){data.tasks=data.tasks.filter(x=>x.id!==id);saveData()}
+function toggleTimeline(id,v){const x=data.timeline.find(x=>x.id===id);if(x)x.done=v;saveData()}
+function toggleShutdown(id,v){const x=data.shutdown.find(x=>x.id===id);if(x)x.done=v;saveData()}
+function resetTodayChecks(){if(!confirm("Reset today’s schedule and shutdown checks?"))return;data.timeline.forEach(x=>x.done=false);data.shutdown.forEach(x=>x.done=false);saveData()}
+
+function renderBusinesses(){
+ document.getElementById("businessCards").innerHTML=data.businesses.map(b=>`<div class="card business-card">
+ <div class="kpi"><div><h3>${escapeHtml(b.name)}</h3><div class="muted">${escapeHtml(b.type)}</div></div>${statusPill(b.status)}</div>
+ <label>Status</label><select onchange="updateBusiness('${b.id}','status',this.value)"><option value="good" ${b.status==="good"?"selected":""}>Good — no CEO action</option><option value="watch" ${b.status==="watch"?"selected":""}>Watch</option><option value="risk" ${b.status==="risk"?"selected":""}>Action required</option></select>
+ <div class="row"><div><label>Control/KPI Score</label><input type="number" min="0" max="100" value="${b.kpi||0}" onchange="updateBusiness('${b.id}','kpi',this.value)"></div><div><label>Type</label><input value="${escapeHtml(b.type)}" onchange="updateBusiness('${b.id}','type',this.value)"></div></div>
+ <label>What should reach the CEO?</label><textarea onchange="updateBusiness('${b.id}','ownerNeed',this.value)">${escapeHtml(b.ownerNeed||"")}</textarea>
+ <div class="linkrow">${b.link?`<button class="btn primary" onclick="window.open('${escapeHtml(b.link)}','_blank')">Open Portal</button>`:""}<button class="btn" onclick="editBusinessLink('${b.id}')">Portal Link</button></div>
+ </div>`).join("");
+}
+function updateBusiness(id,k,v){const b=data.businesses.find(x=>x.id===id);if(!b)return;b[k]=k==="kpi"?clamp(+v,0,100):v;saveData()}
+function editBusinessLink(id){const b=data.businesses.find(x=>x.id===id);const v=prompt("Portal URL for "+b.name,b.link||"");if(v!==null){b.link=v.trim();saveData()}}
+function addBusinessPrompt(){const name=prompt("Business name");if(!name)return;data.businesses.push({id:uid(),name,type:"Business",status:"watch",ownerNeed:"",kpi:0,link:""});saveData()}
+
+function monthlyPayout(type,score){
+ if(type==="maintenance"){if(score>=95)return 200;if(score>=90)return 150;if(score>=80)return 100;return 0}
+ if(type==="manager"&&Number(data.settings.managerBonusMax||0)>0){return Math.round(Number(data.settings.managerBonusMax)*score/100)}
+ return null;
+}
+function performance(score){return score>=95?"Excellent":score>=90?"Strong":score>=80?"Meets Standard":score>=75?"Needs Attention":"Needs Improvement"}
+function monthKpiGroups(){
+ const rows=data.kpis.filter(k=>String(k.date||"").startsWith(monthKey())), map={};
+ rows.forEach(k=>{const key=(k.employee||"Unknown")+"|"+(k.business||"");if(!map[key])map[key]={employee:k.employee,business:k.business,type:k.type,scores:[]};map[key].scores.push(+k.score||0)});
+ return Object.values(map).map(g=>({...g,avg:Math.round(g.scores.reduce((a,b)=>a+b,0)/g.scores.length),reports:g.scores.length}));
+}
+function renderKpis(){
+ const groups=monthKpiGroups();
+ const avg=groups.length?Math.round(groups.reduce((a,g)=>a+g.avg,0)/groups.length):0;
+ document.getElementById("kpiSummaryCards").innerHTML=`
+ <div class="score-big"><b>${avg||"—"}</b><span>Average monthly KPI</span></div>
+ <div class="score-big"><b>${groups.length}</b><span>Employees scored this month</span></div>
+ <div class="score-big"><b>${data.kpis.filter(k=>String(k.date||"").startsWith(monthKey())).length}</b><span>Daily KPI reports</span></div>`;
+ document.getElementById("monthlyKpiRows").innerHTML=groups.map(g=>{const p=monthlyPayout(g.type,g.avg);return`<tr><td><b>${escapeHtml(g.employee)}</b></td><td>${escapeHtml(g.business)}</td><td>${g.reports}</td><td><b>${g.avg}/100</b></td><td>${performance(g.avg)}</td><td>${p===null?"Set manager bonus max":money(p)}</td></tr>`}).join("")||'<tr><td colspan="6" class="muted">No KPI entries yet this month.</td></tr>';
+ document.getElementById("dailyKpiRows").innerHTML=[...data.kpis].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,100).map(k=>`<tr><td>${fmtDate(k.date)}</td><td>${escapeHtml(k.employee)}</td><td>${escapeHtml(k.business)}</td><td><b>${k.score}/100</b></td><td>${escapeHtml(k.type)}</td><td><button class="btn bad" onclick="deleteKpi('${k.id}')">Delete</button></td></tr>`).join("");
+}
+function addKpiEntryPrompt(){
+ openModal("Add Daily KPI",`<div class="row"><div><label>Employee</label><input id="mkEmployee"></div><div><label>Business</label><select id="mkBusiness">${data.businesses.map(b=>`<option>${escapeHtml(b.name)}</option>`).join("")}</select></div></div><div class="row"><div><label>Date</label><input id="mkDate" type="date" value="${todayISO()}"></div><div><label>Score (0-100)</label><input id="mkScore" type="number" min="0" max="100"></div></div><label>Employee Type</label><select id="mkType"><option value="manager">Manager</option><option value="maintenance">Maintenance</option><option value="other">Other</option></select><button class="btn primary" style="margin-top:12px" onclick="saveKpiModal()">Save KPI</button><div class="small muted" style="margin-top:10px">Maintenance payout rule: 95+ = $200, 90–94 = $150, 80–89 = $100, below 80 = $0. Manager payout remains score-only until you set a manager bonus maximum.</div>`)
+}
+function saveKpiModal(){const e=document.getElementById("mkEmployee").value.trim(),s=clamp(+document.getElementById("mkScore").value,0,100);if(!e)return toast("Enter employee name.");data.kpis.push({id:uid(),employee:e,business:document.getElementById("mkBusiness").value,date:document.getElementById("mkDate").value||todayISO(),score:s,type:document.getElementById("mkType").value});closeModal();saveData();toast("Daily KPI saved and monthly KPI recalculated.");}
+function deleteKpi(id){data.kpis=data.kpis.filter(x=>x.id!==id);saveData()}
+
+function renderMoney(){
+ const rows=currentMonthMoney(),rev=rows.reduce((a,x)=>a+Number(x.revenue||0),0),exp=rows.reduce((a,x)=>a+Number(x.expense||0),0);
+ document.getElementById("moneyRevenue").textContent=money(rev);document.getElementById("moneyExpense").textContent=money(exp);document.getElementById("moneyNet").textContent=money(rev-exp);document.getElementById("moneyDays").textContent=new Set(rows.map(x=>x.date)).size;
+ document.getElementById("moneyByBusiness").innerHTML=data.businesses.map(b=>{const r=rows.filter(x=>x.business===b.name);const rr=r.reduce((a,x)=>a+Number(x.revenue||0),0),ee=r.reduce((a,x)=>a+Number(x.expense||0),0);return`<div class="card"><h3>${escapeHtml(b.name)}</h3><div class="big">${money(rr-ee)}</div><div class="small muted">${money(rr)} revenue • ${money(ee)} expense</div></div>`}).join("");
+ document.getElementById("moneyRows").innerHTML=[...data.money].sort((a,b)=>String(b.date).localeCompare(String(a.date))).slice(0,100).map(x=>`<tr><td>${fmtDate(x.date)}</td><td>${escapeHtml(x.business)}</td><td>${money(x.revenue)}</td><td>${money(x.expense)}</td><td>${escapeHtml(x.notes||"")}</td><td><button class="btn bad" onclick="deleteMoney('${x.id}')">Delete</button></td></tr>`).join("");
+}
+function addMoneyPrompt(){openModal("Add Daily Numbers",`<div class="row"><div><label>Date</label><input id="mmDate" type="date" value="${todayISO()}"></div><div><label>Business</label><select id="mmBusiness">${data.businesses.map(b=>`<option>${escapeHtml(b.name)}</option>`).join("")}</select></div></div><div class="row"><div><label>Revenue</label><input id="mmRev" type="number" step=".01"></div><div><label>Expense / Cash Out</label><input id="mmExp" type="number" step=".01"></div></div><label>Notes</label><textarea id="mmNotes"></textarea><button class="btn primary" style="margin-top:12px" onclick="saveMoneyModal()">Save Numbers</button>`)}
+function saveMoneyModal(){data.money.push({id:uid(),date:document.getElementById("mmDate").value||todayISO(),business:document.getElementById("mmBusiness").value,revenue:+document.getElementById("mmRev").value||0,expense:+document.getElementById("mmExp").value||0,notes:document.getElementById("mmNotes").value.trim()});closeModal();saveData();toast("Money numbers saved.")}
+function deleteMoney(id){data.money=data.money.filter(x=>x.id!==id);saveData()}
+
+function marketingStatus(x){const conv=+x.conversions||0,spend=+x.spend||0;if(spend>0&&conv===0)return"risk";if(conv>0&&(spend/conv)>100)return"watch";return conv>0?"good":"watch"}
+function renderMarketing(){
+ const recent=[...data.marketing].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+ document.getElementById("marketingCards").innerHTML=data.businesses.map(b=>{const x=recent.find(r=>r.business===b.name);if(!x)return`<div class="card"><h3>${escapeHtml(b.name)}</h3><div class="muted">No marketing snapshot entered yet.</div></div>`;const st=marketingStatus(x),cpc=(+x.conversions||0)?(+x.spend/+x.conversions):0;return`<div class="card"><div class="kpi"><h3>${escapeHtml(b.name)}</h3>${statusPill(st)}</div><div class="big">${+x.conversions||0}</div><div class="small muted">conversions • ${money(cpc)} per conversion • ${escapeHtml(x.channel)}</div></div>`}).join("");
+ document.getElementById("marketingRows").innerHTML=recent.slice(0,100).map(x=>{const st=marketingStatus(x),c=(+x.conversions||0)?(+x.spend/+x.conversions):0;return`<tr><td>${fmtDate(x.date)}</td><td>${escapeHtml(x.business)}</td><td>${escapeHtml(x.channel)}</td><td>${money(x.spend)}</td><td>${x.leads||0}</td><td>${x.conversions||0}</td><td>${x.conversions?money(c):"—"}</td><td>${statusPill(st)}</td></tr>`}).join("");
+}
+function addMarketingPrompt(){openModal("Add Marketing Snapshot",`<div class="row"><div><label>Date</label><input id="maDate" type="date" value="${todayISO()}"></div><div><label>Business</label><select id="maBusiness">${data.businesses.map(b=>`<option>${escapeHtml(b.name)}</option>`).join("")}</select></div></div><label>Channel</label><select id="maChannel"><option>Google Ads</option><option>Facebook / Instagram</option><option>Bing</option><option>Yelp</option><option>Organic / Google Business</option><option>Other</option></select><div class="row"><div><label>Spend</label><input id="maSpend" type="number"></div><div><label>Leads</label><input id="maLeads" type="number"></div><div><label>Conversions</label><input id="maConv" type="number"></div></div><button class="btn primary" style="margin-top:12px" onclick="saveMarketingModal()">Save Snapshot</button>`)}
+function saveMarketingModal(){data.marketing.push({id:uid(),date:document.getElementById("maDate").value||todayISO(),business:document.getElementById("maBusiness").value,channel:document.getElementById("maChannel").value,spend:+document.getElementById("maSpend").value||0,leads:+document.getElementById("maLeads").value||0,conversions:+document.getElementById("maConv").value||0});closeModal();saveData();toast("Marketing snapshot saved.")}
+
+function renderPeople(){
+ const now=new Date(),week=new Date();week.setDate(now.getDate()+7);
+ const open=data.people.filter(x=>!x.done);
+ const classify=x=>{const d=x.due?new Date(x.due+"T12:00:00"):null;if(!d)return"watch";if(d<=now)return"now";if(d<=week)return"week";return"watch"};
+ const html=x=>`<div class="item"><div class="item-title">${escapeHtml(x.person)}</div><div>${escapeHtml(x.topic)}</div><div class="item-meta">${escapeHtml(x.business||"")} • ${fmtDate(x.due)}</div><button class="btn good" style="margin-top:8px" onclick="completePeople('${x.id}')">Done</button></div>`;
+ document.getElementById("peopleNow").innerHTML=open.filter(x=>classify(x)==="now").map(html).join("")||'<div class="muted small">Nothing due now.</div>';
+ document.getElementById("peopleWeek").innerHTML=open.filter(x=>classify(x)==="week").map(html).join("")||'<div class="muted small">Nothing this week.</div>';
+ document.getElementById("peopleWatch").innerHTML=open.filter(x=>classify(x)==="watch").map(html).join("")||'<div class="muted small">Nothing on watch.</div>';
+}
+function addPeoplePrompt(){openModal("Add People Follow-Up",`<div class="row"><div><label>Person</label><input id="ppPerson"></div><div><label>Business</label><select id="ppBusiness">${data.businesses.map(b=>`<option>${escapeHtml(b.name)}</option>`).join("")}</select></div></div><label>Issue / Follow-Up</label><textarea id="ppTopic"></textarea><label>Due Date</label><input id="ppDue" type="date" value="${todayISO()}"><button class="btn primary" style="margin-top:12px" onclick="savePeopleModal()">Save Follow-Up</button>`)}
+function savePeopleModal(){const p=document.getElementById("ppPerson").value.trim();if(!p)return toast("Enter a person.");data.people.push({id:uid(),person:p,business:document.getElementById("ppBusiness").value,topic:document.getElementById("ppTopic").value.trim(),due:document.getElementById("ppDue").value,done:false});closeModal();saveData()}
+function completePeople(id){const x=data.people.find(x=>x.id===id);if(x)x.done=true;saveData()}
+
+function decisionScore(d){return Number(d.impact||3)*2+Number(d.urgency||3)*2-Number(d.risk||3)}
+function renderDecisions(){document.getElementById("decisionCards").innerHTML=[...data.decisions].sort((a,b)=>decisionScore(b)-decisionScore(a)).map(d=>`<div class="card"><div class="kpi"><div><h3>${escapeHtml(d.title)}</h3><div class="muted small">${escapeHtml(d.business)}</div></div><div class="priority-score">${decisionScore(d)}</div></div><div class="small" style="margin-top:8px"><b>Option / recommendation:</b> ${escapeHtml(d.recommendation||"")}</div><div class="small muted" style="margin-top:7px">Impact ${d.impact}/5 • Urgency ${d.urgency}/5 • Risk ${d.risk}/5</div><button class="btn bad" style="margin-top:10px" onclick="deleteDecision('${d.id}')">Remove</button></div>`).join("")||'<div class="card muted">No open decisions.</div>'}
+function addDecisionPrompt(){openModal("Add Decision",`<label>Decision</label><input id="ddTitle"><label>Business</label><select id="ddBusiness"><option>CEO / Personal</option>${data.businesses.map(b=>`<option>${escapeHtml(b.name)}</option>`).join("")}</select><div class="row"><div><label>Impact 1–5</label><input id="ddImpact" type="number" min="1" max="5" value="5"></div><div><label>Urgency 1–5</label><input id="ddUrgency" type="number" min="1" max="5" value="3"></div><div><label>Risk 1–5</label><input id="ddRisk" type="number" min="1" max="5" value="3"></div></div><label>Your current best option / recommendation</label><textarea id="ddRec"></textarea><button class="btn primary" style="margin-top:12px" onclick="saveDecisionModal()">Save Decision</button>`)}
+function saveDecisionModal(){const t=document.getElementById("ddTitle").value.trim();if(!t)return toast("Enter a decision.");data.decisions.push({id:uid(),title:t,business:document.getElementById("ddBusiness").value,impact:clamp(+document.getElementById("ddImpact").value,1,5),urgency:clamp(+document.getElementById("ddUrgency").value,1,5),risk:clamp(+document.getElementById("ddRisk").value,1,5),recommendation:document.getElementById("ddRec").value.trim()});closeModal();saveData()}
+function deleteDecision(id){data.decisions=data.decisions.filter(x=>x.id!==id);saveData()}
+
+function renderBrief(){
+ const open=data.tasks.filter(t=>t.status!=="done").sort((a,b)=>taskScore(b)-taskScore(a)),riskBiz=data.businesses.filter(b=>b.status!=="good"),groups=monthKpiGroups();
+ const moneyRows=currentMonthMoney(),rev=moneyRows.reduce((a,x)=>a+Number(x.revenue||0),0),exp=moneyRows.reduce((a,x)=>a+Number(x.expense||0),0);
+ document.getElementById("briefContent").innerHTML=`<div class="grid g3"><div class="metric"><b>${open.filter(t=>taskScore(t)>=20).length}</b><span>critical items</span></div><div class="metric"><b>${riskBiz.length}</b><span>businesses on watch/action</span></div><div class="metric"><b>${money(rev-exp)}</b><span>month net entered</span></div></div><div style="margin-top:14px" class="alert ${riskBiz.some(b=>b.status==="risk")?"bad":"warn"}"><b>CEO read:</b> ${open.length?"Your highest-value move is to close or delegate the top-scoring task, then avoid dropping into lower-value employee work.":"No open task is forcing CEO attention right now."}</div><div style="margin-top:12px"><b>KPI status:</b> ${groups.length?groups.map(g=>`${escapeHtml(g.employee)} ${g.avg}/100`).join(" • "):"No current-month KPI entries in this command center yet."}</div>`;
+ document.getElementById("briefTop3").innerHTML=open.slice(0,3).map(taskHtml).join("")||'<div class="muted">No open tasks.</div>';
+ document.getElementById("briefDelegate").innerHTML=open.filter(t=>t.delegate).slice(0,8).map(taskHtml).join("")||'<div class="muted">Nothing marked to delegate.</div>';
+}
+function buildBriefText(){
+ const open=data.tasks.filter(t=>t.status!=="done").sort((a,b)=>taskScore(b)-taskScore(a));
+ const biz=data.businesses.map(b=>`${b.name}: ${b.status}, score ${b.kpi}/100`).join("\n");
+ return `CEO COMMAND CENTER BRIEF — ${new Date().toLocaleString()}
+CONTROL SCORE: ${controlScore()}/100
+
+TOP TASKS:
+${open.slice(0,8).map((t,i)=>`${i+1}. ${t.title} | ${t.business} | priority ${taskScore(t)} | ${t.delegate?"delegate":"CEO"}`).join("\n")||"None"}
+
+BUSINESS PULSE:
+${biz}
+
+MONTH REVENUE ENTERED: ${money(monthRevenue())}
+
+INSTRUCTION FOR CHATGPT:
+Act as my CEO chief of staff. Based only on this brief, tell me the 3 highest-value moves, what I should delegate, what I should ignore today, and any risk I am missing. Keep it practical and concise.`;
+}
+async function copyBrief(){try{await navigator.clipboard.writeText(buildBriefText());toast("CEO Brief copied. Paste it into ChatGPT.");}catch(e){toast("Could not copy automatically.")}}
+
+function renderPortalSettings(){
+ document.getElementById("portalSettings").innerHTML=data.businesses.map(b=>`<label>${escapeHtml(b.name)}</label><input id="portal_${b.id}" value="${escapeHtml(b.link||"")}" placeholder="https://...">`).join("")+`<label>Manager Monthly Bonus Maximum ($)</label><input id="managerBonusMax" type="number" min="0" value="${Number(data.settings.managerBonusMax||0)}"><div class="small muted" style="margin:6px 0 12px">Maintenance payout is already fixed in the KPI Center. Set this only if Square One/Furryland manager bonus has a defined monthly maximum.</div>`;
+}
+function savePortalSettings(){data.businesses.forEach(b=>{const el=document.getElementById("portal_"+b.id);if(el)b.link=el.value.trim()});data.settings.managerBonusMax=+document.getElementById("managerBonusMax").value||0;saveData();toast("Settings saved.")}
+
+function renderAll(){renderHome();renderToday();renderTasks();renderBusinesses();renderKpis();renderMoney();renderMarketing();renderPeople();renderDecisions();renderBrief();renderPortalSettings()}
+function exportData(){const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="CEO_Command_Center_Backup_"+todayISO()+".json";a.click();URL.revokeObjectURL(a.href);toast("Backup exported.")}
+function importData(file){if(!file)return;const r=new FileReader();r.onload=()=>{try{data=Object.assign(structuredClone(defaultData),JSON.parse(r.result));saveData();toast("Backup imported.");}catch(e){alert("That backup file could not be read.")}};r.readAsText(file)}
+function resetAllData(){if(!confirm("Erase all local CEO Command Center data on this device?"))return;localStorage.removeItem(APP_KEY);data=structuredClone(defaultData);saveData();toast("Local data reset.")}
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferredInstall=e;document.getElementById("installBtn").style.display="inline-block"});
+async function installApp(){if(deferredInstall){deferredInstall.prompt();await deferredInstall.userChoice;deferredInstall=null}else{alert("If Install does not appear, use your browser menu and choose Install App or Add to Home Screen.")}}
+if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+
+setInterval(()=>{document.getElementById("clockLine").textContent=new Date().toLocaleString(undefined,{weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})},1000);
+document.getElementById("clockLine").textContent=new Date().toLocaleString(undefined,{weekday:"short",month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});
+renderAll();
+</script>
+</body>
+</html>
