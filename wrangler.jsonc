@@ -2,6 +2,12 @@
   "name": "spin-cycle-ai-marketing",
   "main": "worker/index.js",
   "compatibility_date": "2026-09-08",
+  "kv_namespaces": [
+    {
+      "binding": "GOOGLE_TOKENS",
+      "id": "85b9a17b85b94361b144b8b864bf08bf"
+    }
+  ],
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
