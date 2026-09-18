@@ -1,0 +1,53 @@
+name: Fix weekly date range display
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-week-date-display.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix Sunday-Saturday weekly labels
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          # Make the input label dynamically show Date or Week Ending.
+          s=s.replace('<label>Date / Week Ending</label><input id="collectionDate" type="date">','<label id="collectionDateLabel">Date</label><input id="collectionDate" type="date"><div class="muted" id="weekRangeHint" style="font-size:11px;margin-top:4px"></div>',1)
+          # Replace week helper so each selected Saturday represents the Sunday-Saturday business week.
+          start=s.find('function weekEnd(d)')
+          end=s.find('function shortDate(d)',start)
+          if start!=-1 and end!=-1:
+              replacement='''function weekEnd(d){const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+(6-x.getDay()+7)%7);return x.toISOString().slice(0,10)}function weekStartFromEnd(d){const x=new Date(d+'T12:00:00');x.setDate(x.getDate()-6);return x.toISOString().slice(0,10)}function fmtMDY(d){const x=new Date(d+'T12:00:00');return (x.getMonth()+1)+'/'+x.getDate()+'/'+String(x.getFullYear()).slice(-2)}function weekRange(d){const end=weekEnd(d);return fmtMDY(weekStartFromEnd(end))+' - '+fmtMDY(end)}function updateCollectionDateUI(){const weekly=$('entryType').value==='weekly',input=$('collectionDate'),label=$('collectionDateLabel'),hint=$('weekRangeHint');label.textContent=weekly?'Week Ending (Saturday)':'Date';if(weekly){const end=weekEnd(input.value||new Date().toISOString().slice(0,10));input.value=end;hint.textContent='Sunday–Saturday: '+weekRange(end)}else hint.textContent=''}'''
+              s=s[:start]+replacement+s[end:]
+          # Weekly chart labels show full Sunday-Saturday range.
+          s=s.replace("'<div class=\"chartLabel\">Week ending<br>'+shortDate(r.date)+'</div>'","'<div class=\"chartLabel\">'+weekRange(r.date)+'</div>'")
+          # Saved history explicitly displays weekly ranges.
+          old="'<div><b>'+r.date+'</b> • '+r.type+' • Total '+money(r.total)+' • Self-Service '+money(r.ss)+' • W&F '+money(r.wf)+' • Other '+money(r.other)+'</div>'"
+          new="'<div><b>'+(r.type==='weekly'?'Week '+weekRange(r.date):fmtMDY(r.date))+'</b> • '+(r.type==='weekly'?'Weekly Collection':'Daily Collection')+' • Total '+money(r.total)+' • Self-Service '+money(r.ss)+' • W&F '+money(r.wf)+' • Other '+money(r.other)+'</div>'"
+          s=s.replace(old,new)
+          # Normalize weekly save to Saturday and keep visible confirmation/range after save.
+          marker="$('collectionDate').value=new Date().toISOString().slice(0,10);"
+          if marker in s and "$('entryType').onchange=updateCollectionDateUI" not in s:
+              s=s.replace(marker,marker+"$('entryType').onchange=updateCollectionDateUI;$('collectionDate').onchange=updateCollectionDateUI;updateCollectionDateUI();",1)
+          oldbody="collection_date:$('collectionDate').value,self_service:"
+          newbody="collection_date:($('entryType').value==='weekly'?weekEnd($('collectionDate').value):$('collectionDate').value),self_service:"
+          s=s.replace(oldbody,newbody,1)
+          oldsaved="b.textContent='Saved ✓';setTimeout(()=>b.textContent='Save Collection',1200)"
+          newsaved="b.textContent=$('entryType').value==='weekly'?'Saved ✓ '+weekRange($('collectionDate').value):'Saved ✓';setTimeout(()=>b.textContent='Save Collection',2200)"
+          s=s.replace(oldsaved,newsaved,1)
+          p.write_text(s)
+          PY
+      - name: Commit fix
+        run: |
+          git config user.name "Spin Cycle App Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Show Sunday-Saturday weekly ranges and saved entries"
+          git push
