@@ -1,0 +1,49 @@
+name: Add weekly graph toggles
+on:
+  push:
+    paths:
+      - '.github/workflows/add-weekly-toggle.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add toggles and weekly charts
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          css='''.viewToggle{display:inline-flex;gap:4px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:999px;padding:4px}.viewToggle button{border:0;background:transparent;color:#075985;border-radius:999px;padding:8px 13px;font-weight:850;cursor:pointer}.viewToggle button.active{background:#0878d1;color:white;box-shadow:0 2px 8px #0369a133}.boxTop{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}.graphView{display:none}.graphView.active{display:block}.summaryView.hidden{display:none}.weeklyChart{width:100%;min-height:280px;background:#f8fbff;border:1px solid #e0f2fe;border-radius:14px;padding:14px;margin-top:8px}.chartTitle{font-weight:900;color:#164e7a;margin-bottom:8px}.chartBars{height:210px;display:flex;align-items:flex-end;gap:10px;border-bottom:1px solid #bfdbfe;padding:10px 4px 0}.chartCol{flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:5px}.chartVal{font-size:11px;font-weight:850;color:#164e7a;white-space:nowrap}.chartBar{width:min(48px,70%);min-height:3px;background:linear-gradient(180deg,#38bdf8,#0878d1);border-radius:7px 7px 2px 2px}.chartLabel{font-size:10px;color:#64748b;text-align:center;line-height:1.15;min-height:25px}.chartEmpty{display:grid;place-items:center;min-height:210px;color:#64748b;text-align:center}.graphKpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.graphKpi{background:white;border:1px solid #e0f2fe;border-radius:10px;padding:9px}.graphKpi b{display:block;font-size:16px}.graphKpi small{color:#64748b}@media(max-width:700px){.viewToggle{width:100%}.viewToggle button{flex:1}.weeklyChart{padding:10px;min-height:250px}.chartBars{gap:4px;height:180px}.chartVal{font-size:9px}.chartLabel{font-size:9px}.graphKpis{grid-template-columns:repeat(2,1fr)}}'''
+          if '.viewToggle{' not in s:
+              s=s.replace('@media(max-width:1000px){',css+'@media(max-width:1000px){',1)
+          old='<div class="card"><div class="entry">'
+          new='''<div class="card"><div class="boxTop"><b style="font-size:18px">Collections & Revenue Goal</b><div class="viewToggle"><button class="active" data-view="collections-summary">Summary</button><button data-view="collections-graph">Weekly Graph</button></div></div><div class="summaryView" id="collections-summary"><div class="entry">'''
+          if 'data-view="collections-summary"' not in s:
+              s=s.replace(old,new,1)
+              s=s.replace('<div class="history" id="history"></div></div><div class="section"><h2>Performance</h2>','<div class="history" id="history"></div></div><div class="graphView" id="collections-graph"><div class="weeklyChart" id="collectionsChart"></div></div></div><div class="section"><h2>Performance</h2>',1)
+          old='<span class="pill" id="ssOverall">—</span></div><div class="metricGrid" id="ssMetrics"></div></div>'
+          new='''<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill" id="ssOverall">—</span><div class="viewToggle"><button class="active" data-view="ss-summary">Summary</button><button data-view="ss-graph">Weekly Graph</button></div></div></div><div class="summaryView" id="ss-summary"><div class="metricGrid" id="ssMetrics"></div></div><div class="graphView" id="ss-graph"><div class="weeklyChart" id="ssChart"></div></div></div>'''
+          if 'data-view="ss-summary"' not in s:
+              s=s.replace(old,new,1)
+          old='<span class="pill" id="wfOverall">—</span></div><div class="metricGrid" id="wfMetrics"></div></div></div><div class="section connectionsHead">'
+          new='''<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="pill" id="wfOverall">—</span><div class="viewToggle"><button class="active" data-view="wf-summary">Summary</button><button data-view="wf-graph">Weekly Graph</button></div></div></div><div class="summaryView" id="wf-summary"><div class="metricGrid" id="wfMetrics"></div></div><div class="graphView" id="wf-graph"><div class="weeklyChart" id="wfChart"></div></div></div></div><div class="section connectionsHead">'''
+          if 'data-view="wf-summary"' not in s:
+              s=s.replace(old,new,1)
+          js='''function weekEnd(d){const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+(7-x.getDay())%7);return x.toISOString().slice(0,10)}function weeklyRows(){const groups={};COLLECTIONS.forEach(r=>{const w=weekEnd(r.date);(groups[w]||(groups[w]={daily:[],weekly:[]}))[r.type==='weekly'?'weekly':'daily'].push(r)});return Object.entries(groups).map(([date,g])=>{const use=g.weekly.length?g.weekly:g.daily;return{date,ss:use.reduce((a,r)=>a+r.ss,0),wf:use.reduce((a,r)=>a+r.wf,0),other:use.reduce((a,r)=>a+r.other,0),total:use.reduce((a,r)=>a+r.total,0)}}).sort((a,b)=>a.date.localeCompare(b.date)).slice(-8)}function shortDate(d){const x=new Date(d+'T12:00:00');return (x.getMonth()+1)+'/'+x.getDate()}function barChart(rows,key,title){if(!rows.length)return '<div class="chartTitle">'+title+'</div><div class="chartEmpty">Enter daily or weekly collections to build your weekly trend.</div>';const max=Math.max(...rows.map(r=>r[key]),1);return '<div class="chartTitle">'+title+'</div><div class="chartBars">'+rows.map(r=>'<div class="chartCol"><div class="chartVal">'+money(r[key])+'</div><div class="chartBar" style="height:'+Math.max(3,r[key]/max*150)+'px"></div><div class="chartLabel">Week ending<br>'+shortDate(r.date)+'</div></div>').join('')+'</div>'}function renderWeeklyCharts(){const rows=weeklyRows(),cc=$('collectionsChart'),sc=$('ssChart'),wc=$('wfChart');if(cc)cc.innerHTML=barChart(rows,'total','Weekly Collections — Total Revenue');if(DATA){const p=DATA.periods[PERIOD],ss=p.self_service,wf=p.wash_and_fold;if(sc)sc.innerHTML=barChart(rows,'ss','Self-Service Weekly Revenue Trend')+'<div class="graphKpis"><div class="graphKpi"><b>'+money(ss.spend)+'</b><small>Ad Spend • selected period</small></div><div class="graphKpi"><b>'+num(ss.clicks)+'</b><small>Clicks • selected period</small></div><div class="graphKpi"><b>'+pct(ss.ctr)+'</b><small>CTR • selected period</small></div><div class="graphKpi"><b>'+money(ss.cost_per_conversion)+'</b><small>Cost / Conversion</small></div></div>';if(wc)wc.innerHTML=barChart(rows,'wf','Wash & Fold Weekly Revenue Trend')+'<div class="graphKpis"><div class="graphKpi"><b>'+money(wf.spend)+'</b><small>Ad Spend • selected period</small></div><div class="graphKpi"><b>'+num(wf.clicks)+'</b><small>Clicks • selected period</small></div><div class="graphKpi"><b>'+pct(wf.ctr)+'</b><small>CTR • selected period</small></div><div class="graphKpi"><b>'+money(wf.cost_per_conversion)+'</b><small>Cost / Conversion</small></div></div>'}}document.querySelectorAll('.viewToggle button').forEach(btn=>btn.addEventListener('click',()=>{const target=btn.dataset.view,group=btn.parentElement;group.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const base=target.replace(/-(summary|graph)$/,'');const summary=$(base+'-summary'),graph=$(base+'-graph');if(target.endsWith('-graph')){summary&&summary.classList.add('hidden');graph&&graph.classList.add('active');renderWeeklyCharts()}else{summary&&summary.classList.remove('hidden');graph&&graph.classList.remove('active')}}));'''
+          if 'function weeklyRows()' not in s:
+              s=s.replace('function renderRevenue(){',js+'function renderRevenue(){',1)
+              s=s.replace("$('history').innerHTML=rows.slice().sort", "renderWeeklyCharts();$('history').innerHTML=rows.slice().sort",1)
+          p.write_text(s)
+          PY
+      - name: Commit dashboard update
+        run: |
+          git config user.name "Spin Cycle App Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Add weekly graph toggles to collections and performance"
+          git push
