@@ -1,0 +1,44 @@
+name: Add Spin Cycle install button
+on:
+  push:
+    paths:
+      - '.github/workflows/add-spin-cycle-install.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch portal install experience
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          old_css='@media(max-width:1000px){'
+          new_css='''.installApp{display:flex;align-items:center;gap:11px;border:1px solid #60a5fa;background:linear-gradient(135deg,#0866f5,#0057df);color:#fff;border-radius:14px;padding:10px 16px;min-width:230px;box-shadow:0 8px 22px #07598533;cursor:pointer;font-weight:900}.installApp .installIcon{font-size:28px;line-height:1}.installApp .installCopy{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1}.installApp .installCopy b{font-size:16px}.installApp .installCopy small{font-size:11px;font-weight:700;color:#dbeafe;margin-top:4px}.installApp:hover{filter:brightness(1.05);transform:translateY(-1px)}.installApp:active{transform:translateY(0)}.installApp.installed{background:#e0f2fe;color:#075985;border-color:#93c5fd;box-shadow:none;cursor:default}.installApp.installed .installCopy small{color:#2563eb}.brandLogo{width:64px;height:64px;object-fit:contain;border-radius:14px;background:#fff;padding:3px}@media(max-width:700px){.installApp{width:100%;justify-content:center;min-width:0}.installApp .installCopy{align-items:flex-start}.brandLogo{width:54px;height:54px}}'''+old_css
+          if '.installApp{' not in s:
+              s=s.replace(old_css,new_css,1)
+          old='<div class="logo">SC</div>'
+          if old in s:
+              s=s.replace(old,'<img class="brandLogo" src="icon-192.png" alt="Spin Cycle Laundromat">',1)
+          old='<div class="range" id="rangeLabel">Last 7 Days</div>'
+          new='''<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end"><div class="range" id="rangeLabel">Last 7 Days</div><button class="installApp" id="installApp" type="button"><span class="installIcon">⇩</span><span class="installCopy"><b>Install App</b><small>Get Spin Cycle Marketing</small></span></button></div>'''
+          if 'id="installApp"' not in s:
+              s=s.replace(old,new,1)
+          marker="const API='https://spin-cycle-ai-marketing.poneproperties.workers.dev/api/dashboard'"
+          install_js='''let deferredInstallPrompt=null;const installButton=document.getElementById('installApp');function isStandalone(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true}function updateInstallButton(){if(!installButton)return;if(isStandalone()){installButton.classList.add('installed');installButton.innerHTML='<span class="installIcon">✓</span><span class="installCopy"><b>Installed</b><small>Spin Cycle Marketing</small></span>';installButton.disabled=true}}window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredInstallPrompt=e;updateInstallButton()});window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;updateInstallButton()});if(installButton)installButton.addEventListener('click',async()=>{if(isStandalone()){updateInstallButton();return}if(deferredInstallPrompt){deferredInstallPrompt.prompt();await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;updateInstallButton();return}const isiOS=/iphone|ipad|ipod/i.test(navigator.userAgent);if(isiOS){alert('To install Spin Cycle Marketing: tap the Share button in Safari, then tap Add to Home Screen.')}else{alert('To install Spin Cycle Marketing: open the Chrome menu (⋮) and tap Install app or Add to Home screen.')}});updateInstallButton();'''
+          if install_js not in s:
+              s=s.replace(marker,install_js+marker,1)
+          p.write_text(s)
+          PY
+      - name: Commit portal update
+        run: |
+          git config user.name "Spin Cycle App Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Add prominent Spin Cycle mobile install button"
+          git push
