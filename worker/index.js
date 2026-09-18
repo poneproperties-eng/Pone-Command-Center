@@ -1,7 +1,8 @@
 const SCOPES = [
   'https://www.googleapis.com/auth/adwords',
   'https://www.googleapis.com/auth/analytics.readonly',
-  'https://www.googleapis.com/auth/webmasters.readonly'
+  'https://www.googleapis.com/auth/webmasters.readonly',
+  'https://www.googleapis.com/auth/business.manage'
 ];
 const TOKEN_KEY = 'spin-cycle-google-oauth';
 const CUSTOMER_ID = '1515534333';
@@ -43,7 +44,7 @@ async function googleGet(env, endpoint) {
 }
 
 async function discoverGoogle(env) {
-  const results = { analytics: { ok: false, accounts: [] }, search_console: { ok: false, sites: [] }, google_ads: { ok: false, customers: [] } };
+  const results = { analytics: { ok: false, accounts: [] }, search_console: { ok: false, sites: [] }, business_profile: { ok: false, accounts: [] }, google_ads: { ok: false, customers: [] } };
   try {
     const ga = await googleGet(env, 'https://analyticsadmin.googleapis.com/v1beta/accountSummaries?pageSize=200');
     results.analytics = { ok: true, accounts: (ga.accountSummaries || []).map(a => ({ account: a.account, displayName: a.displayName, properties: (a.propertySummaries || []).map(p => ({ property: p.property, displayName: p.displayName, propertyType: p.propertyType })) })) };
@@ -52,6 +53,10 @@ async function discoverGoogle(env) {
     const sc = await googleGet(env, 'https://www.googleapis.com/webmasters/v3/sites');
     results.search_console = { ok: true, sites: (sc.siteEntry || []).map(s => ({ siteUrl: s.siteUrl, permissionLevel: s.permissionLevel })) };
   } catch (e) { results.search_console.error = e.message; }
+  try {
+    const bp = await googleGet(env, 'https://mybusinessaccountmanagement.googleapis.com/v1/accounts');
+    results.business_profile = { ok: true, accounts: (bp.accounts || []).map(a => ({ name: a.name, accountName: a.accountName, type: a.type, role: a.role })) };
+  } catch (e) { results.business_profile.error = e.message; }
   try {
     const accessToken = await getAccessToken(env);
     const r = await fetch(`https://googleads.googleapis.com/${API_VERSION}/customers:listAccessibleCustomers`, { headers: { authorization: `Bearer ${accessToken}` } });
@@ -133,7 +138,7 @@ export default {
     if (url.pathname === '/api/google/status') {
       const saved = await storedTokens(env).catch(() => null);
       if (!saved?.refresh_token) return json({ ok: true, connected: false });
-      try { await getAccessToken(env); return json({ ok: true, connected: true, updated_at: saved.updated_at || saved.connected_at || null }); }
+      try { await getAccessToken(env); return json({ ok: true, connected: true, updated_at: saved.updated_at || saved.connected_at || null, scope: saved.scope || '' }); }
       catch (e) { return json({ ok: false, connected: false, error: e.message }, 502); }
     }
     if (url.pathname === '/api/google/discover') {
@@ -158,7 +163,7 @@ export default {
       if (!tokens.refresh_token) return json({ ok: false, error: 'Google did not return a refresh token. Reconnect and approve access again.' }, 400);
       const record = { access_token: tokens.access_token, refresh_token: tokens.refresh_token, token_type: tokens.token_type || 'Bearer', scope: tokens.scope || SCOPES.join(' '), expires_at: Date.now() + ((tokens.expires_in || 3600) * 1000), connected_at: new Date().toISOString(), updated_at: new Date().toISOString() };
       await env.GOOGLE_TOKENS.put(TOKEN_KEY, JSON.stringify(record));
-      return new Response('<!doctype html><meta charset="utf-8"><title>Google Connected</title><h1>Google is connected</h1><p>Spin Cycle AI Marketing authorization is saved.</p>', { headers: { 'content-type': 'text/html; charset=utf-8', 'set-cookie': 'sc_oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0', 'cache-control': 'no-store' } });
+      return new Response('<!doctype html><meta charset="utf-8"><title>Google Connected</title><h1>Google is connected</h1><p>Spin Cycle AI Marketing authorization is saved. You may return to the dashboard.</p>', { headers: { 'content-type': 'text/html; charset=utf-8', 'set-cookie': 'sc_oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0', 'cache-control': 'no-store' } });
     }
     if (env.ASSETS) return env.ASSETS.fetch(request);
     return json({ ok: false, error: 'Not found' }, 404);
