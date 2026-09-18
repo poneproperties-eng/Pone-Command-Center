@@ -1,0 +1,52 @@
+name: Collections edit and monthly graph
+on:
+  push:
+    paths:
+      - '.github/workflows/collections-edit-monthly.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch dashboard
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html'); s=p.read_text()
+          # Add Monthly toggle to collections only.
+          s=s.replace('<button data-view="collections-graph">Weekly Graph</button>','<button data-view="collections-graph">Weekly</button><button data-view="collections-monthly">Monthly</button>',1)
+          s=s.replace('<div class="graphView" id="collections-graph"><div class="weeklyChart" id="collectionsChart"></div></div>','<div class="graphView" id="collections-graph"><div class="weeklyChart" id="collectionsChart"></div></div><div class="graphView" id="collections-monthly"><div class="weeklyChart" id="collectionsMonthlyChart"></div></div>',1)
+          # Edit button styling.
+          s=s.replace('.history div{padding:7px 0;border-top:1px solid #e2e8f0}', '.history div{padding:7px 0;border-top:1px solid #e2e8f0}.historyRow{display:flex;justify-content:space-between;align-items:center;gap:10px}.editCollection{border:1px solid #bfdbfe;background:#fff;color:#075985;border-radius:8px;padding:6px 10px;font-weight:850;cursor:pointer;flex:0 0 auto}',1)
+          # Monthly aggregation: weekly entries are assigned to their week-ending month; daily rows to their calendar month.
+          anchor='function shortDate(d)'
+          monthly="""function monthlyRows(){const g={};COLLECTIONS.forEach(r=>{const d=new Date(r.date+'T12:00:00'),k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');if(!g[k])g[k]={date:k,ss:0,wf:0,other:0,total:0};g[k].ss+=Number(r.ss)||0;g[k].wf+=Number(r.wf)||0;g[k].other+=Number(r.other)||0;g[k].total+=Number(r.total)||0});return Object.values(g).sort((a,b)=>a.date.localeCompare(b.date)).slice(-12)}function monthLabel(k){const [y,m]=k.split('-').map(Number);return new Date(y,m-1,1).toLocaleDateString('en-US',{month:'short',year:'2-digit'})}function monthlyChart(rows,key,title){if(!rows.length)return '<div class=\"chartTitle\">'+title+'</div><div class=\"chartEmpty\">Enter collections to build your monthly trend.</div>';const max=Math.max(...rows.map(r=>r[key]),1);return '<div class=\"chartTitle\">'+title+'</div><div class=\"chartBars\">'+rows.map(r=>'<div class=\"chartCol\"><div class=\"chartVal\">'+money(r[key])+'</div><div class=\"chartBar\" style=\"height:'+Math.max(3,r[key]/max*150)+'px\"></div><div class=\"chartLabel\">'+monthLabel(r.date)+'</div></div>').join('')+'</div>'}function renderMonthlyChart(){const el=$('collectionsMonthlyChart');if(el)el.innerHTML=monthlyChart(monthlyRows(),'total','Monthly Collections — Total Revenue')}function editCollection(i){const r=COLLECTIONS[i];if(!r)return;$('entryType').value=r.type;$('collectionDate').value=r.date;$('colSS').value=r.ss;$('colWF').value=r.wf;$('colOther').value=r.other;updateCollectionDateUI();$('saveCollection').dataset.editIndex=String(i);$('saveCollection').textContent='Save Changes';window.scrollTo({top:$('collections-summary').getBoundingClientRect().top+window.scrollY-120,behavior:'smooth'})}"""
+          if 'function monthlyRows()' not in s: s=s.replace(anchor,monthly+anchor,1)
+          # Render monthly whenever weekly charts render.
+          s=s.replace("if(cc)cc.innerHTML=barChart(rows,'total','Weekly Collections — Total Revenue');", "if(cc)cc.innerHTML=barChart(rows,'total','Weekly Collections — Total Revenue');renderMonthlyChart();",1)
+          # Toggle handler: make all three collection views mutually exclusive.
+          old="const base=target.replace(/-(summary|graph)$/,'');const summary=$(base+'-summary'),graph=$(base+'-graph');if(target.endsWith('-graph')){summary&&summary.classList.add('hidden');graph&&graph.classList.add('active');renderWeeklyCharts()}else{summary&&summary.classList.remove('hidden');graph&&graph.classList.remove('active')}"
+          new="const base=target.startsWith('collections-')?'collections':target.replace(/-(summary|graph)$/,'');const summary=$(base+'-summary'),graph=$(base+'-graph'),monthly=$(base+'-monthly');summary&&summary.classList.add('hidden');graph&&graph.classList.remove('active');monthly&&monthly.classList.remove('active');if(target==='collections-monthly'){monthly&&monthly.classList.add('active');renderMonthlyChart()}else if(target.endsWith('-graph')){graph&&graph.classList.add('active');renderWeeklyCharts()}else{summary&&summary.classList.remove('hidden')}"
+          s=s.replace(old,new,1)
+          # History rows get Edit controls; index is resolved against COLLECTIONS.
+          oldhist="$('history').innerHTML=rows.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,8).map(r=>'<div><b>'+(r.type==='weekly'?'Week '+weekRange(r.date):fmtMDY(r.date))+'</b> • '+(r.type==='weekly'?'Weekly Collection':'Daily Collection')+' • Total '+money(r.total)+' • Self-Service '+money(r.ss)+' • W&F '+money(r.wf)+' • Other '+money(r.other)+'</div>').join('')"
+          newhist="$('history').innerHTML=rows.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12).map(r=>{const i=COLLECTIONS.indexOf(r);return '<div class=\"historyRow\"><span><b>'+(r.type==='weekly'?'Week '+weekRange(r.date):fmtMDY(r.date))+'</b> • '+(r.type==='weekly'?'Weekly Collection':'Daily Collection')+' • Total '+money(r.total)+' • Self-Service '+money(r.ss)+' • W&F '+money(r.wf)+' • Other '+money(r.other)+'</span><button class=\"editCollection\" onclick=\"editCollection('+i+')\">Edit</button></div>'}).join('')"
+          s=s.replace(oldhist,newhist,1)
+          # Preserve current API storage. When editing, replace local matching row after successful save and reload central state.
+          # Existing backend upsert semantics remain the source of truth for same date/type saves.
+          old="b.textContent=$('entryType').value==='weekly'?'Saved ✓ '+weekRange($('collectionDate').value):'Saved ✓';setTimeout(()=>b.textContent='Save Collection',2200)"
+          new="delete b.dataset.editIndex;b.textContent=$('entryType').value==='weekly'?'Saved ✓ '+weekRange($('collectionDate').value):'Saved ✓';setTimeout(()=>b.textContent='Save Collection',2200)"
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Spin Cycle App Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Add monthly collections graph and edit controls"
+          git push
