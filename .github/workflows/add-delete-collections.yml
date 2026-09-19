@@ -11,40 +11,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Add safe delete controls for saved collections
+      - name: Add working delete controls
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('index.html')
           s=p.read_text()
-          # Style delete next to Edit.
-          s=s.replace('.editCollection{border:1px solid #bfdbfe;background:#fff;color:#075985;border-radius:8px;padding:6px 10px;font-weight:850;cursor:pointer;flex:0 0 auto}', '.editCollection{border:1px solid #bfdbfe;background:#fff;color:#075985;border-radius:8px;padding:6px 10px;font-weight:850;cursor:pointer;flex:0 0 auto}.deleteCollection{border:1px solid #fecaca;background:#fff;color:#b91c1c;border-radius:8px;padding:6px 10px;font-weight:850;cursor:pointer;flex:0 0 auto}.historyActions{display:flex;gap:7px;align-items:center;flex:0 0 auto}')
-          # Add Delete beside every generated Edit button, preserving the same row index/key used by Edit.
-          import re
-          patterns=[
-            (r'(<button[^>]*class="editCollection"[^>]*data-index="([^\"]+)"[^>]*>Edit</button>)', r'<span class="historyActions">\1<button class="deleteCollection" data-index="\2">Delete</button></span>'),
-            (r'(<button[^>]*class="editCollection"[^>]*data-id="([^\"]+)"[^>]*>Edit</button>)', r'<span class="historyActions">\1<button class="deleteCollection" data-id="\2">Delete</button></span>'),
-            (r'(<button[^>]*class="editCollection"[^>]*data-key="([^\"]+)"[^>]*>Edit</button>)', r'<span class="historyActions">\1<button class="deleteCollection" data-key="\2">Delete</button></span>')
-          ]
-          changed=False
-          for pat,repl in patterns:
-            ns,n=re.subn(pat,repl,s)
-            if n:
-              s=ns; changed=True; break
-          # If buttons are rendered with inline onclick editCollection(index), mirror that index.
-          if not changed:
-            pat=r'(<button[^>]*class="editCollection"[^>]*onclick="editCollection\(([^)]+)\)"[^>]*>Edit</button>)'
-            s,n=re.subn(pat,r'<span class="historyActions">\1<button class="deleteCollection" onclick="deleteCollection(\2)">Delete</button></span>',s)
-            changed=bool(n)
-          if not changed:
-            raise SystemExit('Could not locate generated Edit button safely; refusing broad patch')
-          # Inject delegated handler. It reuses the existing edit identity and calls the app API with DELETE.
-          marker='document.addEventListener("click",'
-          handler='''document.addEventListener("click",async(e)=>{const b=e.target.closest(".deleteCollection");if(!b)return;if(!confirm("Delete this saved collection entry? This cannot be undone."))return;const id=b.dataset.id||b.dataset.key;const idx=b.dataset.index;if(typeof deleteCollection==="function"){return deleteCollection(id??idx)}alert("Delete connection is not available yet.")});'''
-          # Only add delegation when no existing deleteCollection implementation exists.
-          if 'class="deleteCollection"' in s and 'function deleteCollection(' not in s and 'const deleteCollection=' not in s:
-            # We cannot safely invent backend semantics. Fail rather than ship a button that cannot delete.
-            raise SystemExit('Delete UI located, but no existing backend deleteCollection function found; backend patch required')
+          css='.editCollection{border:1px solid #bfdbfe;background:#fff;color:#075985;border-radius:8px;padding:6px 10px;font-weight:850;cursor:pointer;flex:0 0 auto}'
+          css2=css+'.deleteCollection{border:1px solid #fecaca;background:#fff;color:#b91c1c;border-radius:8px;padding:6px 10px;font-weight:850;cursor:pointer;flex:0 0 auto}.historyActions{display:flex;gap:7px;align-items:center;flex:0 0 auto}'
+          if '.deleteCollection{' not in s:
+            if css not in s: raise SystemExit('Edit CSS marker not found')
+            s=s.replace(css,css2,1)
+          marker='function shortDate(d)'
+          fn="async function deleteCollection(i){const r=COLLECTIONS[i];if(!r)return;const label=r.type==='weekly'?'Week '+weekRange(r.date):fmtMDY(r.date);if(!confirm('Delete '+label+' collection? This cannot be undone.'))return;try{await postCentral({action:'delete_collection',entry_type:r.type,collection_date:r.date})}catch(e){alert('Could not delete collection: '+e.message)}}"
+          if 'async function deleteCollection(i)' not in s:
+            if marker not in s: raise SystemExit('Function marker not found')
+            s=s.replace(marker,fn+marker,1)
+          old='<button class="editCollection" onclick="editCollection(\'+i+\')">Edit</button>'
+          new='<span class="historyActions"><button class="editCollection" onclick="editCollection(\'+i+\')">Edit</button><button class="deleteCollection" onclick="deleteCollection(\'+i+\')">Delete</button></span>'
+          if 'class="deleteCollection" onclick="deleteCollection(' not in s:
+            if old not in s: raise SystemExit('Edit button marker not found')
+            s=s.replace(old,new,1)
           p.write_text(s)
           PY
       - name: Commit change
@@ -53,5 +40,5 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m "Add Edit and Delete controls for collections"
+          git commit -m "Add working Delete button for collections"
           git push
