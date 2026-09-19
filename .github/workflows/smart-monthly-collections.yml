@@ -1,0 +1,33 @@
+name: Smart monthly collections
+on:
+  push:
+    paths: ['.github/workflows/smart-monthly-collections.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make weekly and monthly totals avoid daily/weekly double counting
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          start=s.find('function weeklyRows(){')
+          end=s.find('function monthLabel(',start)
+          if start<0 or end<0: raise SystemExit('Collection aggregation block not found')
+          new='''function effectiveWeeklyRows(){const weeks={};COLLECTIONS.forEach(r=>{const end=weekEnd(r.date);if(!weeks[end])weeks[end]={date:end,daily:[],weekly:[]};weeks[end][r.type==='weekly'?'weekly':'daily'].push(r)});return Object.values(weeks).map(w=>{const src=w.weekly.length?w.weekly:w.daily;const out={date:w.date,ss:0,wf:0,other:0,total:0,source:w.weekly.length?'weekly':'daily'};src.forEach(r=>{out.ss+=Number(r.ss)||0;out.wf+=Number(r.wf)||0;out.other+=Number(r.other)||0;out.total+=Number(r.total)||0});return out}).sort((a,b)=>a.date.localeCompare(b.date))}function weeklyRows(){return effectiveWeeklyRows().slice(-12)}function monthlyRows(){const g={};effectiveWeeklyRows().forEach(r=>{const start=weekStartFromEnd(r.date),sd=new Date(start+'T12:00:00'),ed=new Date(r.date+'T12:00:00');if(sd.getMonth()===ed.getMonth()&&sd.getFullYear()===ed.getFullYear()){const k=ed.getFullYear()+'-'+String(ed.getMonth()+1).padStart(2,'0');if(!g[k])g[k]={date:k,ss:0,wf:0,other:0,total:0};['ss','wf','other','total'].forEach(x=>g[k][x]+=r[x]);return}const daily=COLLECTIONS.filter(x=>x.type==='daily'&&weekEnd(x.date)===r.date);if(daily.length){daily.forEach(x=>{const d=new Date(x.date+'T12:00:00'),k=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');if(!g[k])g[k]={date:k,ss:0,wf:0,other:0,total:0};['ss','wf','other','total'].forEach(y=>g[k][y]+=Number(x[y])||0)})}else{const k=ed.getFullYear()+'-'+String(ed.getMonth()+1).padStart(2,'0');if(!g[k])g[k]={date:k,ss:0,wf:0,other:0,total:0};['ss','wf','other','total'].forEach(x=>g[k][x]+=r[x])}});return Object.values(g).sort((a,b)=>a.date.localeCompare(b.date)).slice(-12)}'''
+          s=s[:start]+new+s[end:]
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Spin Cycle App Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Calculate monthly collections without double counting"
+          git push
