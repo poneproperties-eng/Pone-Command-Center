@@ -1,0 +1,31 @@
+name: Fix live weekly history renderer
+on:
+  push:
+    paths: ['.github/workflows/fix-live-history-renderer.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch the rendered history accordion directly
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html'); s=p.read_text()
+          css='''.masterWeekToggle{width:100%;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;margin:8px 0;border:1px solid #bfdbfe;border-radius:12px;background:#eff6ff;color:#075985;font-weight:900;cursor:pointer}.masterWeekToggle .mArrow{font-size:17px}.historyAccordion.masterCollapsed{display:none!important}.historyAccordion summary{grid-template-columns:minmax(0,1fr) auto!important}.historyAccordion .summaryActions{display:flex!important;gap:7px;align-items:center;margin-left:auto}.historyAccordion .summaryActions button{display:inline-flex!important}.historyAccordion details:not([open]) .accBody{display:none!important}'''
+          if '.masterWeekToggle{' not in s:s=s.replace('</style>',css+'</style>',1)
+          js='''<script id="liveHistoryRendererFix">(function(){function wire(){const acc=document.querySelector('#history .historyAccordion')||document.querySelector('.historyAccordion');if(!acc||acc.dataset.liveFixed)return;acc.dataset.liveFixed='1';const h=acc.closest('#history')||acc.parentElement;let toggle=h.querySelector('.masterWeekToggle');if(!toggle){toggle=document.createElement('button');toggle.type='button';toggle.className='masterWeekToggle';toggle.innerHTML='<span>Weekly Collection History</span><span class="mArrow">▾</span>';h.insertBefore(toggle,acc);acc.classList.add('masterCollapsed');toggle.onclick=function(){const closed=acc.classList.toggle('masterCollapsed');toggle.querySelector('.mArrow').textContent=closed?'▾':'▴'}}acc.querySelectorAll('details').forEach(d=>{const sum=d.querySelector('summary'),body=d.querySelector('.accBody');if(!sum||!body||sum.querySelector('.summaryActions'))return;const actions=body.querySelector('.historyActions');if(actions){const holder=document.createElement('span');holder.className='summaryActions';[...actions.querySelectorAll('button')].forEach(b=>holder.appendChild(b));sum.appendChild(holder);actions.remove()}d.removeAttribute('open')})}new MutationObserver(()=>setTimeout(wire,20)).observe(document.documentElement,{childList:true,subtree:true});document.addEventListener('DOMContentLoaded',()=>setTimeout(wire,100));setInterval(wire,700)})();</script>'''
+          if 'liveHistoryRendererFix' not in s:s=s.replace('</body>',js+'</body>',1)
+          p.write_text(s)
+          PY
+      - name: Verify and commit
+        run: |
+          grep -q 'liveHistoryRendererFix' index.html
+          grep -q 'masterWeekToggle' index.html
+          git config user.name 'Spin Cycle App Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Fix live weekly history collapse and keep actions visible'
+          git push
