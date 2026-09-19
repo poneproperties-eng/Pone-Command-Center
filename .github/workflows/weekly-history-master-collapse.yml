@@ -1,0 +1,31 @@
+name: Weekly history master collapse
+on:
+  push:
+    paths: ['.github/workflows/weekly-history-master-collapse.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add master collapse and keep row actions visible
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html'); s=p.read_text()
+          css='''.weeklyHistoryToggle{width:100%;display:flex;align-items:center;justify-content:space-between;border:1px solid #cfe4f7;border-radius:12px;background:#f8fbff;padding:12px 14px;font-weight:900;color:#164e7a;cursor:pointer;margin:8px 0}.weeklyHistoryToggle .arrow{color:#0878d1;font-size:16px}.weeklyHistoryList.collapsed{display:none!important}.historyRow.collapsibleHistory .historyActions{display:flex!important}.historyRow.collapsibleHistory .historyDetail{display:none!important}.historyRow.collapsibleHistory:after{display:none!important}.historyRow.collapsibleHistory{cursor:default!important;grid-template-columns:minmax(0,1fr) auto!important}'''
+          if '.weeklyHistoryToggle{' not in s:s=s.replace('</style>',css+'</style>',1)
+          js='''<script id="weeklyHistoryMasterCollapse">(function(){function apply(){const h=document.getElementById('history');if(!h||h.dataset.masterCollapse)return;const rows=h.querySelectorAll('.historyRow');if(!rows.length)return;h.dataset.masterCollapse='1';const btn=document.createElement('button');btn.type='button';btn.className='weeklyHistoryToggle';btn.innerHTML='<span>Weekly Collection History ('+rows.length+' weeks)</span><span class="arrow">▾</span>';const list=document.createElement('div');list.className='weeklyHistoryList collapsed';while(h.firstChild)list.appendChild(h.firstChild);h.append(btn,list);btn.addEventListener('click',()=>{const closed=list.classList.toggle('collapsed');btn.querySelector('.arrow').textContent=closed?'▾':'▴'});list.querySelectorAll('.historyRow').forEach(r=>{r.classList.remove('open');r.onclick=null;const clone=r.cloneNode(true);r.replaceWith(clone)})}new MutationObserver(()=>setTimeout(apply,0)).observe(document.documentElement,{childList:true,subtree:true});document.addEventListener('DOMContentLoaded',()=>setTimeout(apply,150));setInterval(apply,1200)})();</script>'''
+          if 'weeklyHistoryMasterCollapse' not in s:s=s.replace('</body>',js+'</body>',1)
+          p.write_text(s)
+          PY
+      - name: Verify and commit
+        run: |
+          grep -q 'weeklyHistoryMasterCollapse' index.html
+          grep -q 'weeklyHistoryList collapsed' index.html
+          git config user.name 'Spin Cycle App Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Add true weekly history dropdown and preserve edit delete'
+          git push
