@@ -1,0 +1,31 @@
+name: Fix weekly collapse v3
+on:
+  push:
+    paths: ['.github/workflows/fix-weekly-collapse-v3.yml']
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make collection history rows directly collapsible
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html'); s=p.read_text()
+          css='''.historyRow.collapsibleHistory{display:grid!important;grid-template-columns:1fr auto;cursor:pointer;border:1px solid #dbeafe!important;border-radius:10px;padding:10px 12px!important;margin:7px 0;background:#f8fbff}.historyRow.collapsibleHistory:after{content:'▾';color:#0878d1;font-weight:900;margin-left:10px}.historyRow.collapsibleHistory.open:after{content:'▴'}.historyRow.collapsibleHistory .historyActions{display:none;grid-column:1/-1;margin-top:10px}.historyRow.collapsibleHistory.open .historyActions{display:flex}.historyRow.collapsibleHistory .historyDetail{display:none;grid-column:1/-1;padding-top:8px;color:#526b8d}.historyRow.collapsibleHistory.open .historyDetail{display:block}'''
+          if '.historyRow.collapsibleHistory{' not in s:s=s.replace('</style>',css+'</style>',1)
+          js='''<script id="weeklyCollapseV3">(function(){function apply(){const h=document.getElementById('history');if(!h)return;const rows=[...h.querySelectorAll('.historyRow')];rows.forEach((r,i)=>{if(r.dataset.collapseReady)return;r.dataset.collapseReady='1';r.classList.add('collapsibleHistory');if(i===0)r.classList.add('open');const action=r.querySelector('.historyActions');const nodes=[...r.childNodes].filter(n=>n!==action);const detail=document.createElement('div');detail.className='historyDetail';detail.textContent='Tap this week to show or hide Edit / Delete.';r.appendChild(detail);r.addEventListener('click',e=>{if(e.target.closest('button'))return;r.classList.toggle('open')})})}new MutationObserver(()=>setTimeout(apply,0)).observe(document.documentElement,{childList:true,subtree:true});document.addEventListener('DOMContentLoaded',()=>setTimeout(apply,100));setInterval(apply,1000)})();</script>'''
+          if 'weeklyCollapseV3' not in s:s=s.replace('</body>',js+'</body>',1)
+          p.write_text(s)
+          PY
+      - name: Verify and commit
+        run: |
+          grep -q 'weeklyCollapseV3' index.html
+          grep -q 'collapsibleHistory' index.html
+          git config user.name 'Spin Cycle App Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Make weekly collection history collapsible'
+          git push
