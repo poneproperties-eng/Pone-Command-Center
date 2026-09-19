@@ -1,0 +1,46 @@
+name: Stacked collection charts
+on:
+  push:
+    paths: ['.github/workflows/stacked-collection-charts.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Mirror approved stacked chart design and defaults
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html'); s=p.read_text()
+          # Defaults: Today dashboard + Weekly Collection entry.
+          s=s.replace("<div class=\"range\" id=\"rangeLabel\">Last 7 Days</div>","<div class=\"range\" id=\"rangeLabel\">Today</div>",1)
+          s=s.replace('<button class="period" data-period="today">Today</button><button class="period active" data-period="last_7_days">Last 7 Days</button>','<button class="period active" data-period="today">Today</button><button class="period" data-period="last_7_days">Last 7 Days</button>',1)
+          s=s.replace("let DATA=null,PERIOD='last_7_days',COLLECTIONS=[],MONTHLY_GOAL=0;","let DATA=null,PERIOD='today',COLLECTIONS=[],MONTHLY_GOAL=0;",1)
+          s=s.replace('<option value="daily">Daily Collection</option><option value="weekly">Weekly Collection</option>','<option value="weekly" selected>Weekly Collection</option><option value="daily">Daily Collection</option>',1)
+          # Stacked chart CSS.
+          marker='.chartEmpty{display:grid;place-items:center;min-height:210px;color:#64748b;text-align:center}'
+          extra='.stackBar{width:min(68px,78%);min-height:3px;display:flex;flex-direction:column;justify-content:flex-end;border-radius:8px 8px 2px 2px;overflow:hidden}.stackSS{background:linear-gradient(180deg,#38bdf8,#0878d1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:850;min-height:2px}.stackWF{background:linear-gradient(180deg,#8b5cf6,#6d4ed8);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:850;min-height:2px}.chartLegend{display:flex;justify-content:flex-end;gap:18px;align-items:center;font-size:12px;color:#334155;margin:-24px 4px 8px}.legendDot{width:11px;height:11px;border-radius:50%;display:inline-block;margin-right:5px}.legendSS{background:#249de3}.legendWF{background:#7657df}.chartBreakdown{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.chartBreakdown>div{background:#fff;border:1px solid #e0f2fe;border-radius:10px;padding:9px}.chartBreakdown b{display:block;font-size:16px;color:#0f3e68}.chartBreakdown small{color:#64748b}'
+          if '.stackBar{' not in s: s=s.replace(marker,marker+extra,1)
+          # Replace monthly total-only chart with stacked chart.
+          a=s.find('function monthlyChart('); b=s.find('function renderMonthlyChart()',a)
+          if a<0 or b<0: raise SystemExit('monthly chart block not found')
+          stacked="""function stackedCollectionChart(rows,title,labeler){if(!rows.length)return '<div class=\"chartTitle\">'+title+'</div><div class=\"chartEmpty\">Enter collections to build this trend.</div>';const max=Math.max(...rows.map(r=>r.total),1),latest=rows[rows.length-1],ssPct=latest.total?latest.ss/latest.total*100:0,wfPct=latest.total?latest.wf/latest.total*100:0;return '<div class=\"chartTitle\">'+title+'</div><div class=\"chartLegend\"><span><i class=\"legendDot legendSS\"></i>Self-Service</span><span><i class=\"legendDot legendWF\"></i>Wash & Fold</span></div><div class=\"chartBars\">'+rows.map(r=>{const h=Math.max(4,r.total/max*150),wfH=r.total?r.wf/r.total*h:0,ssH=Math.max(2,h-wfH);return '<div class=\"chartCol\"><div class=\"chartVal\">'+money(r.total)+'</div><div class=\"stackBar\" style=\"height:'+h+'px\"><div class=\"stackWF\" style=\"height:'+wfH+'px\">'+(wfH>18?money(r.wf):'')+'</div><div class=\"stackSS\" style=\"height:'+ssH+'px\">'+(ssH>18?money(r.ss):'')+'</div></div><div class=\"chartLabel\">'+labeler(r)+'</div></div>'}).join('')+'</div><div class=\"chartBreakdown\"><div><small>Self-Service • latest</small><b>'+money(latest.ss)+' · '+pct(ssPct)+'</b></div><div><small>Wash & Fold • latest</small><b>'+money(latest.wf)+' · '+pct(wfPct)+'</b></div><div><small>Total Collection • latest</small><b>'+money(latest.total)+'</b></div></div>'}function monthlyChart(rows,key,title){return stackedCollectionChart(rows,title,r=>monthLabel(r.date))}"""
+          s=s[:a]+stacked+s[b:]
+          # Replace weekly collection total chart call only; keep SS/WF performance charts unchanged.
+          old="if(cc)cc.innerHTML=barChart(rows,'total','Weekly Collections — Total Revenue');"
+          new="if(cc)cc.innerHTML=stackedCollectionChart(rows,'Weekly Collections — Total Revenue',r=>weekRange(r.date));"
+          if old not in s: raise SystemExit('weekly collection chart call not found')
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Spin Cycle App Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Mirror stacked collection charts and set defaults"
+          git push
