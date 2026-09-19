@@ -1,0 +1,40 @@
+name: Collection accordion and W&F labels
+on:
+  push:
+    paths: ['.github/workflows/collection-accordion-and-wf-labels.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch collection history and chart labels
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html'); s=p.read_text()
+          # Always show both component collection values beneath each stacked bar, so small W&F values never disappear.
+          old="return '<div class=\"chartCol\"><div class=\"chartVal\">'+money(r.total)+'</div><div class=\"stackBar\" style=\"height:'+h+'px\"><div class=\"stackWF\" style=\"height:'+wfH+'px\">'+(wfH>18?money(r.wf):'')+'</div><div class=\"stackSS\" style=\"height:'+ssH+'px\">'+(ssH>18?money(r.ss):'')+'</div></div><div class=\"chartLabel\">'+labeler(r)+'</div></div>'"
+          new="return '<div class=\"chartCol\"><div class=\"chartVal\">'+money(r.total)+'</div><div class=\"stackBar\" style=\"height:'+h+'px\"><div class=\"stackWF\" style=\"height:'+wfH+'px\"></div><div class=\"stackSS\" style=\"height:'+ssH+'px\"></div></div><div style=\"font-size:9px;font-weight:800;color:#6d4ed8;white-space:nowrap\">W&F '+money(r.wf)+'</div><div style=\"font-size:9px;font-weight:800;color:#0878d1;white-space:nowrap\">Self '+money(r.ss)+'</div><div class=\"chartLabel\">'+labeler(r)+'</div></div>'"
+          if old in s: s=s.replace(old,new,1)
+          # Compact accordion styling.
+          css='.weekAccordion{margin-top:12px;border:1px solid #dbeafe;border-radius:12px;overflow:hidden}.weekItem{border-top:1px solid #e2e8f0;background:#fff}.weekItem:first-child{border-top:0}.weekSummary{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;cursor:pointer;background:#f8fbff}.weekSummary::-webkit-details-marker{display:none}.weekTitle{font-weight:900;color:#164e7a}.weekMeta{font-size:12px;color:#526b8d;margin-top:2px}.weekTotal{font-weight:950;color:#0f3e68;white-space:nowrap}.weekBody{padding:10px 12px;border-top:1px solid #e0f2fe}.weekStats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:9px}.weekStats div{background:#f8fbff;border:1px solid #e0f2fe;border-radius:9px;padding:8px}.weekStats small{display:block;color:#64748b}.weekStats b{display:block;color:#0f3e68;margin-top:2px}.weekActions{display:flex;gap:7px;justify-content:flex-end}@media(max-width:700px){.weekSummary{grid-template-columns:1fr}.weekTotal{justify-self:start}.weekStats{grid-template-columns:repeat(2,1fr)}}'
+          if '.weekAccordion{' not in s: s=s.replace('</style>',css+'</style>',1)
+          # Replace flat history renderer with details/summary accordion. Weekly records stay editable/deletable.
+          start=s.find('function renderHistory()')
+          end=s.find('function editCollection(',start)
+          if start<0 or end<0: raise SystemExit('history renderer not found')
+          fn="""function renderHistory(){const h=document.getElementById('history');if(!h)return;const rows=[...COLLECTIONS].sort((a,b)=>String(b.date).localeCompare(String(a.date)));if(!rows.length){h.innerHTML='<div class=\"muted\">No collections entered yet.</div>';return}const weeks={};rows.forEach(r=>{const e=weekEnd(r.date);if(!weeks[e])weeks[e]=[];weeks[e].push(r)});const ends=Object.keys(weeks).sort().reverse();h.innerHTML='<div class=\"weekAccordion\">'+ends.map((e,i)=>{const all=weeks[e],weekly=all.filter(r=>r.type==='weekly'),daily=all.filter(r=>r.type!=='weekly'),src=weekly.length?weekly:daily,t=src.reduce((a,r)=>({ss:a.ss+(+r.ss||0),wf:a.wf+(+r.wf||0),other:a.other+(+r.other||0),total:a.total+(+r.total||0)}),{ss:0,wf:0,other:0,total:0}),editable=weekly[0]||null;return '<details class=\"weekItem\" '+(i===0?'open':'')+'><summary class=\"weekSummary\"><div><div class=\"weekTitle\">Week '+weekRange(e)+'</div><div class=\"weekMeta\">Self-Service '+money(t.ss)+' • Wash & Fold '+money(t.wf)+' • Other '+money(t.other)+'</div></div><div class=\"weekTotal\">Total '+money(t.total)+'</div></summary><div class=\"weekBody\"><div class=\"weekStats\"><div><small>Self-Service</small><b>'+money(t.ss)+'</b></div><div><small>Wash & Fold</small><b>'+money(t.wf)+'</b></div><div><small>Other</small><b>'+money(t.other)+'</b></div><div><small>Total Collection</small><b>'+money(t.total)+'</b></div></div>'+(editable?'<div class=\"weekActions\"><button class=\"editCollection\" onclick=\"editCollection(\\\''+editable.id+'\\\')\">Edit</button><button class=\"deleteCollection\" onclick=\"deleteCollection(\\\''+editable.id+'\\\')\">Delete</button></div>':'<div class=\"muted\">Calculated from '+daily.length+' daily entr'+(daily.length===1?'y':'ies')+'.</div>')+'</div></details>'}).join('')+'</div>'} """
+          s=s[:start]+fn+s[end:]
+          p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name "Spin Cycle App Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Add weekly accordion and persistent W&F chart labels"
+          git push
