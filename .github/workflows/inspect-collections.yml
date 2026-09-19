@@ -1,0 +1,31 @@
+name: Inspect collections implementation
+on:
+  push:
+    paths: ['.github/workflows/inspect-collections.yml']
+permissions:
+  contents: write
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          keys=['const API','COLLECTIONS','saveCollection','editCollection','/api/collection','fetch(']
+          out=[]
+          for k in keys:
+            pos=0
+            while True:
+              i=s.find(k,pos)
+              if i<0: break
+              out.append('\n--- '+k+' @ '+str(i)+' ---\n'+s[max(0,i-700):min(len(s),i+1800)])
+              pos=i+len(k)
+          Path('collections-inspect.txt').write_text('\n'.join(out))
+          PY
+          git config user.name "Spin Cycle App Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add collections-inspect.txt
+          git commit -m "Add temporary collections implementation inspection"
+          git push
