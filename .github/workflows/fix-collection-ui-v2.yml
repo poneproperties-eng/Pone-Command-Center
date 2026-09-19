@@ -1,0 +1,42 @@
+name: Fix collection UI v2
+on:
+  push:
+    paths: ['.github/workflows/fix-collection-ui-v2.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch actual current collection UI
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          # Always show W&F and Self-Service dollar values under every stacked bar.
+          old="return '<div class=\"chartCol\"><div class=\"chartVal\">'+money(r.total)+'</div><div class=\"stackBar\" style=\"height:'+h+'px\"><div class=\"stackWF\" style=\"height:'+wfH+'px\">'+(wfH>18?money(r.wf):'')+'</div><div class=\"stackSS\" style=\"height:'+ssH+'px\">'+(ssH>18?money(r.ss):'')+'</div></div><div class=\"chartLabel\">'+labeler(r)+'</div></div>'"
+          new="return '<div class=\"chartCol\"><div class=\"chartVal\">Total '+money(r.total)+'</div><div class=\"stackBar\" style=\"height:'+h+'px\"><div class=\"stackWF\" style=\"height:'+wfH+'px\"></div><div class=\"stackSS\" style=\"height:'+ssH+'px\"></div></div><div class=\"chartParts\"><span class=\"wfPart\">W&F '+money(r.wf)+'</span><span class=\"ssPart\">Self '+money(r.ss)+'</span></div><div class=\"chartLabel\">'+labeler(r)+'</div></div>'"
+          if old not in s:
+              raise SystemExit('stacked chart source not found')
+          s=s.replace(old,new,1)
+          css='''.chartParts{display:flex;flex-direction:column;align-items:center;gap:1px;font-size:9px;font-weight:850;line-height:1.15;white-space:nowrap}.wfPart{color:#6d4ed8}.ssPart{color:#0878d1}.historyAccordion{margin-top:10px;border:1px solid #dbeafe;border-radius:12px;overflow:hidden;background:#fff}.historyAccordion details{border-top:1px solid #e2e8f0}.historyAccordion details:first-child{border-top:0}.historyAccordion summary{list-style:none;cursor:pointer;padding:10px 12px;background:#f8fbff;font-weight:850;color:#164e7a;display:flex;justify-content:space-between;gap:10px;align-items:center}.historyAccordion summary::-webkit-details-marker{display:none}.historyAccordion summary:after{content:'▾';font-size:15px;color:#0878d1}.historyAccordion details[open] summary:after{content:'▴'}.historyAccordion .accBody{padding:10px 12px}.historyAccordion .accBody .historyRow{border-top:0;padding:0}.historyAccordion .accBody .historyActions{margin-left:10px}@media(max-width:700px){.historyAccordion summary{align-items:flex-start}.chartParts{font-size:8px}}'''
+          s=s.replace('</style>',css+'</style>',1)
+          # Transform the existing weekly history rows into a real accordion after every render,
+          # without depending on the original renderer function name.
+          js='''<script id="collectionAccordionPatch">(function(){let busy=false;function compactHistory(){if(busy)return;const h=document.getElementById('history');if(!h||h.querySelector('.historyAccordion'))return;const rows=[...h.querySelectorAll('.historyRow')];if(!rows.length)return;busy=true;const box=document.createElement('div');box.className='historyAccordion';rows.forEach((row,i)=>{const d=document.createElement('details');if(i===0)d.open=true;const sum=document.createElement('summary');const text=row.querySelector('span')||row.firstElementChild;sum.textContent=text?text.textContent.trim():'Weekly Collection';const body=document.createElement('div');body.className='accBody';if(text&&text.parentNode===row)text.remove();body.appendChild(row);d.append(sum,body);box.appendChild(d)});h.innerHTML='';h.appendChild(box);busy=false}const obs=new MutationObserver(()=>setTimeout(compactHistory,0));document.addEventListener('DOMContentLoaded',()=>{const h=document.getElementById('history');if(h)obs.observe(h,{childList:true,subtree:false});setTimeout(compactHistory,300)});setInterval(compactHistory,1500)})();</script>'''
+          if 'collectionAccordionPatch' not in s:
+              s=s.replace('</body>',js+'</body>',1)
+          p.write_text(s)
+          PY
+      - name: Commit verified patch
+        run: |
+          grep -q 'chartParts' index.html
+          grep -q 'collectionAccordionPatch' index.html
+          git config user.name "Spin Cycle App Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          git commit -m "Fix weekly accordion and show W&F collection values"
+          git push
