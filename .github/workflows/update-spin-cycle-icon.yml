@@ -1,0 +1,47 @@
+name: Update Spin Cycle app icon
+on:
+  push:
+    paths: ['.github/workflows/update-spin-cycle-icon.yml']
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate official Spin Cycle icons
+        run: |
+          python3 - <<'PY'
+          import base64
+          from pathlib import Path
+          data192='PLACEHOLDER192'
+          data512='PLACEHOLDER512'
+          Path('icon-192.png').write_bytes(base64.b64decode(data192))
+          Path('icon-512.png').write_bytes(base64.b64decode(data512))
+          PY
+      - name: Update manifest for light mode
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('manifest.json'); m=json.loads(p.read_text())
+          m['name']='Spin Cycle Marketing'
+          m['short_name']='Spin Cycle'
+          m['background_color']='#ffffff'
+          m['theme_color']='#ffffff'
+          m['icons']=[
+            {'src':'icon-192.png?v=20260919','sizes':'192x192','type':'image/png','purpose':'any'},
+            {'src':'icon-512.png?v=20260919','sizes':'512x512','type':'image/png','purpose':'any'}]
+          p.write_text(json.dumps(m,indent=2)+'\n')
+          q=Path('index.html'); s=q.read_text()
+          s=s.replace('href="icon-192.png"','href="icon-192.png?v=20260919"')
+          s=s.replace('href="icon-512.png"','href="icon-512.png?v=20260919"')
+          q.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name 'Spin Cycle App Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add icon-192.png icon-512.png manifest.json index.html
+          git commit -m 'Use Spin Cycle Laundromat logo for installed app'
+          git push
