@@ -6,64 +6,45 @@
 <meta name="theme-color" content="#082f49">
 <title>Spin Cycle AI Marketing</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#f0f9ff;color:#0f172a}.wrap{max-width:1450px;margin:0 auto;padding:12px}.nav{background:#fff;border:1px solid #dbeafe;border-radius:16px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 14px #0c4a6e12}.brand{display:flex;align-items:center;gap:10px;font-weight:950;color:#075985;font-size:20px}.brand img{width:42px;height:42px;object-fit:contain}.tabs{display:flex;gap:7px;flex-wrap:wrap}.tab{border:1px solid #bfdbfe;background:#eff6ff;color:#075985;border-radius:999px;padding:10px 15px;font-weight:900;cursor:pointer}.tab:hover{background:#dbeafe}.hero{margin-top:12px;background:linear-gradient(135deg,#075985,#0284c7);color:#fff;border-radius:18px;padding:20px}.hero h1{margin:0 0 5px;font-size:28px}.hero p{margin:0;color:#e0f2fe;line-height:1.45}.dataNote{margin-top:12px;background:#dcfce7;border:1px solid #86efac;color:#166534;border-radius:14px;padding:13px 15px;font-weight:800}.dataNote small{display:block;font-weight:600;margin-top:4px;line-height:1.4}.guide{margin-top:12px;background:linear-gradient(135deg,#eff6ff,#f0fdfa);border:1px solid #cfe8f5;border-radius:18px;padding:15px}.guideTitle{font-weight:950;color:#075985;margin-bottom:10px;font-size:16px}.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.step{border:1px solid #bfdbfe;background:#fff;border-radius:14px;padding:14px;cursor:pointer;text-align:left;min-height:145px;display:flex;flex-direction:column}.step:hover{box-shadow:0 6px 16px #07598518;transform:translateY(-1px)}.stepNum{font-size:11px;font-weight:950;color:#0284c7}.step b{display:block;color:#0f3f66;margin:5px 0;font-size:18px}.step small{color:#64748b;line-height:1.4}.open{margin-top:auto;padding-top:12px;color:#0369a1;font-weight:950}.step.primary{border-color:#0ea5e9;background:#e0f2fe}.footer{margin-top:12px;background:#fff;border:1px solid #dbeafe;border-radius:14px;padding:14px;color:#475569;line-height:1.5}.footer b{color:#0f3f66}@media(max-width:980px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}.nav{align-items:flex-start;flex-direction:column}.tabs{width:100%}.tab{flex:1}}@media(max-width:580px){.steps{grid-template-columns:1fr}.brand{font-size:17px}.hero h1{font-size:23px}}
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#f0f9ff;color:#0f172a}.app{height:100%;display:grid;grid-template-rows:auto 1fr}.ownerbar{background:#fff;border-bottom:1px solid #dbeafe;padding:9px 12px;box-shadow:0 3px 12px #0c4a6e12;z-index:5}.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:9px;font-weight:950;color:#075985}.brand img{width:36px;height:36px;object-fit:contain}.simple{font-size:12px;color:#64748b;margin-top:2px}.actions{display:flex;gap:7px;flex-wrap:wrap}.btn{border:1px solid #bfdbfe;background:#eff6ff;color:#075985;border-radius:999px;padding:9px 13px;font-weight:900;cursor:pointer}.btn.home{background:#075985;color:#fff;border-color:#075985}.btn:hover{filter:brightness(.98)}.next{margin-top:8px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(135deg,#eff6ff,#f0fdfa);border:1px solid #bfdbfe;border-radius:12px;padding:9px 11px}.nextText{font-size:12px;color:#475569}.nextText b{display:block;color:#0f3f66;font-size:13px;margin-bottom:2px}.nextBtns{display:flex;gap:7px;flex-wrap:wrap}.nextBtn{border:0;border-radius:10px;padding:8px 11px;font-weight:900;cursor:pointer;background:#fff;color:#075985;box-shadow:0 2px 7px #0c4a6e12}.frame{width:100%;height:100%;border:0;background:#f0f9ff}.hint{font-size:11px;color:#64748b}@media(max-width:760px){.row{align-items:flex-start}.actions{width:100%}.btn{flex:1}.next{align-items:flex-start;flex-direction:column}.nextBtns{width:100%}.nextBtn{flex:1}}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <nav class="nav">
-    <div class="brand"><img src="icon-192.png" alt="Spin Cycle"><span>SPIN CYCLE AI MARKETING</span></div>
-    <div class="tabs">
-      <button class="tab" data-href="/index.html">Dashboard</button>
-      <button class="tab" data-href="/owner-growth.html">Growth Command Center</button>
-      <button class="tab" data-href="/campaign-studio.html">AI Campaign Studio</button>
+<div class="app">
+  <div class="ownerbar">
+    <div class="row">
+      <div>
+        <div class="brand"><img src="/icon-192.png" alt="Spin Cycle"><span>SPIN CYCLE AI MARKETING</span></div>
+        <div class="simple">Keep it simple: look at the numbers, see what needs attention, then create the marketing.</div>
+      </div>
+      <div class="actions">
+        <button class="btn home" id="homeBtn">My Dashboard</button>
+        <button class="btn" id="growthBtn">What Should I Fix?</button>
+        <button class="btn" id="campaignBtn">Create Marketing</button>
+      </div>
     </div>
-  </nav>
-
-  <section class="hero">
-    <h1>What should I do?</h1>
-    <p>Use the four steps below in order. Each step opens the correct part of Spin Cycle AI Marketing. Nothing loads inside itself anymore.</p>
-  </section>
-
-  <div class="dataNote">
-    ✓ Your original Spin Cycle data is still in Dashboard.
-    <small>Collections, weekly history, Self-Service, Wash & Fold, Google Ads, connections and campaign performance were not intentionally removed. Start with Step 1 to open that original data screen.</small>
+    <div class="next">
+      <div class="nextText"><b>WHAT DO I DO NEXT?</b><span id="nextCopy">Start by reviewing Today, Last 7 Days and Last 30 Days below. Green is good, yellow needs watching, red needs attention.</span></div>
+      <div class="nextBtns">
+        <button class="nextBtn" id="showNumbers">1. Look at My Numbers</button>
+        <button class="nextBtn" id="showGrowth">2. Tell Me What to Fix</button>
+        <button class="nextBtn" id="showCampaign">3. Fix It for Me</button>
+      </div>
+    </div>
   </div>
-
-  <section class="guide">
-    <div class="guideTitle">FOLLOW THESE STEPS IN ORDER</div>
-    <div class="steps">
-      <button class="step primary" data-href="/index.html">
-        <span class="stepNum">STEP 1</span>
-        <b>Review My Numbers</b>
-        <small>Open your original dashboard and review collections, Self-Service, Wash & Fold, Google Ads, connections and history.</small>
-        <span class="open">OPEN MY DASHBOARD →</span>
-      </button>
-      <button class="step" data-href="/owner-growth.html">
-        <span class="stepNum">STEP 2</span>
-        <b>Tell Me What’s Wrong</b>
-        <small>Enter owner code 4398. Growth Command Center identifies what is lacking, what is wasting money and what to attack next.</small>
-        <span class="open">OPEN GROWTH COMMAND CENTER →</span>
-      </button>
-      <button class="step" data-href="/campaign-studio.html">
-        <span class="stepNum">STEP 3</span>
-        <b>Create & Preview Marketing</b>
-        <small>Create the weekly campaign, offers, creative concepts and channel versions. Preview before spending.</small>
-        <span class="open">OPEN AI CAMPAIGN STUDIO →</span>
-      </button>
-      <button class="step" data-href="/campaign-studio.html#approve">
-        <span class="stepNum">STEP 4</span>
-        <b>Approve & Advertise</b>
-        <small>Review the finished campaign, budget and offer. No paid campaign launches without your approval.</small>
-        <span class="open">REVIEW FOR APPROVAL →</span>
-      </button>
-    </div>
-  </section>
-
-  <div class="footer"><b>Important:</b> This page is now only the guide/home screen. Dashboard, Growth Command Center and AI Campaign Studio open as separate full pages, so the app can no longer repeat itself three times.</div>
+  <iframe class="frame" id="mainFrame" src="/index.html?embedded=1" title="Spin Cycle AI Marketing Dashboard"></iframe>
 </div>
 <script>
-document.querySelectorAll('[data-href]').forEach(el=>el.addEventListener('click',()=>{window.location.href=el.dataset.href;}));
+const frame=document.getElementById('mainFrame');
+function openDashboard(){frame.src='/index.html?embedded=1';document.getElementById('nextCopy').textContent='Start by reviewing Today, Last 7 Days and Last 30 Days below. Green is good, yellow needs watching, red needs attention.'}
+function openGrowth(){frame.src='/owner-growth.html';document.getElementById('nextCopy').textContent='Enter owner code 4398. The app will show what is weak, what may be wasting money, and what to work on next.'}
+function openCampaign(){frame.src='/campaign-studio.html';document.getElementById('nextCopy').textContent='Build and preview the campaign. You approve the offer and budget before any paid advertising launches.'}
+document.getElementById('homeBtn').onclick=openDashboard;
+document.getElementById('growthBtn').onclick=openGrowth;
+document.getElementById('campaignBtn').onclick=openCampaign;
+document.getElementById('showNumbers').onclick=openDashboard;
+document.getElementById('showGrowth').onclick=openGrowth;
+document.getElementById('showCampaign').onclick=openCampaign;
 </script>
 </body>
 </html>
