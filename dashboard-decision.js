@@ -4,7 +4,7 @@
   const COLLECTIONS_API='https://eajtunubzthudvqciesa.supabase.co/functions/v1/spin-cycle-data';
   const money=v=>'$'+Number(v||0).toFixed(2);
 
-  function setDecision(title,reason,reminder,metrics,href,label){
+  function setDecision(title,reason,reminder,metrics,href,label,passive){
     const t=document.getElementById('decisionTitle');
     const r=document.getElementById('decisionReason');
     const rm=document.getElementById('decisionReminder');
@@ -14,7 +14,21 @@
     if(r)r.textContent=reason;
     if(rm)rm.textContent=reminder;
     if(m){m.innerHTML='';(metrics||[]).forEach(text=>{const s=document.createElement('span');s.className='decisionMetric';s.textContent=text;m.appendChild(s);});}
-    if(b){b.href=href||'/growth-marketing';b.textContent=label||'OPEN ACTION PAGE →';}
+    if(b){
+      b.textContent=label||'GOOD FOR NOW';
+      b.href=href||'/';
+      b.onclick=null;
+      b.removeAttribute('aria-disabled');
+      b.style.opacity='1';
+      b.style.cursor='pointer';
+      if(passive){
+        b.href='#';
+        b.setAttribute('aria-disabled','true');
+        b.style.opacity='.92';
+        b.style.cursor='default';
+        b.onclick=function(e){e.preventDefault();};
+      }
+    }
   }
 
   function weekEnd(date){
@@ -38,10 +52,10 @@
   }
 
   function competitorPlan(kind){
-    if(kind==='convenience')return 'Competitor context: HappyNest is strongest on convenience, recurring pickup and communication. If action is justified, beat that with clearer Spin Cycle convenience, Free Pickup messaging and stronger local branding.';
-    if(kind==='trust')return 'Competitor context: Splash is strongest on local trust, reviews and turnaround promises. If action is justified, strengthen proof, turnaround clarity and local credibility.';
-    if(kind==='ordering')return 'Competitor context: Laundromax is strongest on simple ordering, tracking and pickup/delivery positioning. If action is justified, simplify the CTA and make the next step unmistakable.';
-    return 'Competitor context is being used only to shape the recommendation after your own business data says a change is justified.';
+    if(kind==='convenience')return 'Competitor reference: HappyNest is strong on convenience, recurring pickup and communication. If you test new creative, beat that with clearer Spin Cycle convenience, Free Pickup messaging and stronger local branding.';
+    if(kind==='trust')return 'Competitor reference: Splash is strong on local trust, reviews and turnaround promises. If you test new creative, strengthen proof, turnaround clarity and local credibility.';
+    if(kind==='ordering')return 'Competitor reference: Laundromax is strong on simple ordering and pickup/delivery positioning. If you test new creative, simplify the CTA and make the next step unmistakable.';
+    return 'Competitor information is reference only. Your own business data determines whether action is needed.';
   }
 
   async function run(){
@@ -57,7 +71,7 @@
       const hc=h.checks||{};
 
       if(!hc.google?.ok||!hc.google_ads?.ok||!d?.periods){
-        setDecision('RECONNECT GOOGLE FIRST','I cannot safely combine your Dashboard data until Google Ads is live.','Reconnect first. Do not make a paid-ad change from incomplete data.',[],'/oauth/start','RECONNECT GOOGLE →');
+        setDecision('Google data is not complete yet.','I cannot safely combine your Dashboard data until Google Ads is live.','Reconnect first. Do not make a paid-ad change from incomplete data.',[],'/oauth/start','RECONNECT GOOGLE',false);
         return;
       }
 
@@ -87,7 +101,6 @@
       const avg7=spend7/7;
       const avg30=spend30/30;
       const spendTrend=avg30>0?((avg7-avg30)/avg30*100):null;
-
       const metrics=['Today spend '+money(spendToday),'7-day ad spend '+money(spend7),'30-day ad spend '+money(spend30),'7-day clicks '+clicks7,'30-day clicks '+clicks30];
       if(wfNow!==null)metrics.push('latest W&F '+money(wfNow));
       if(wfPrev!==null)metrics.push('prior W&F '+money(wfPrev));
@@ -97,48 +110,48 @@
       if(enabled)metrics.push(enabled+' enabled campaign'+(enabled===1?'':'s'));
 
       if(!cr.ok||!c.ok){
-        setDecision('CHECK COLLECTIONS DATA','Your ad data is available, but actual collections are missing, so I cannot combine the full Dashboard into a reliable action plan.','Fix collections data first. Competitor information should never trigger an ad change by itself.',metrics,'/','STAY ON DASHBOARD');
+        setDecision('Collections data needs attention.','Your ad data is available, but actual collections are missing, so I cannot combine the full Dashboard into a reliable recommendation.','Fix collections data first. Competitor information should never trigger an ad change by itself.',metrics,'/','CHECK COLLECTIONS',true);
         return;
       }
 
       if(spend7<1){
-        setDecision('CREATE OR RESTART A CAMPAIGN','There is no meaningful paid activity in the last 7 days, so there is nothing to evaluate against your revenue yet.','Create the campaign, then let it run for about a week before making a major creative or budget change unless something is clearly broken.',metrics,'/growth-marketing','CREATE CAMPAIGN →');
+        setDecision('There is no meaningful paid activity to evaluate yet.','Your own data says there is no active paid campaign gathering enough information right now.','Create a campaign, then leave it alone for about a week before making a major change unless something is clearly broken.',metrics,'/growth-marketing','CREATE ADS NOW',false);
         return;
       }
 
       if(spendToday>0&&(spend7<200||clicks7<30)){
-        setDecision('WAIT — COMPLETE ABOUT A WEEK OF DATA','Ads are active, but there is not enough 7-day activity yet for a reliable change decision. I am also checking the 30-day baseline and actual W&F collections.','Do not react to Competitor Watch yet. Let the current campaign gather about a full week of useful data, then come back here for one combined action plan.',metrics,'/','KEEP RUNNING');
+        setDecision('The current ads are still gathering useful data.','Today, 7-day, 30-day and revenue data do not justify changing the campaign yet.','Hold it steady until you have about a full week of meaningful activity. Do not react to competitor ideas yet.',metrics,'/','ON HOLD — KEEP RUNNING',true);
         return;
       }
 
       if(wfChange!==null&&wfChange>=10){
-        setDecision('KEEP RUNNING — BUSINESS RESULT IS IMPROVING','Actual Wash & Fold collections improved versus the prior recorded week while paid activity remains meaningful.','Do not change a campaign that is helping revenue. Keep it stable for another week and use competitor ideas only as future test concepts.',metrics,'/','KEEP WATCHING');
+        setDecision('Your actual Wash & Fold result is improving.','Revenue improved versus the prior recorded week while paid activity remains meaningful.','Do not disturb a campaign that is helping the business. Review again after another week.',metrics,'/','GOOD FOR NOW',true);
         return;
       }
 
       if(spend7>=200&&wfChange!==null&&wfChange<=-15){
-        setDecision('ACTION PLAN — TEST A STRONGER CREATIVE','You now have about a week of meaningful ad activity and actual Wash & Fold collections are down materially versus the prior recorded week. '+competitorPlan('convenience'),'Create one controlled variation, not a wholesale reset. Keep the current campaign as the comparison and test the new creative for the next week.',metrics,'/growth-marketing','CREATE ONE TEST →');
+        setDecision('Your own data says one controlled creative test is justified.','You have about a week of meaningful ad activity and actual W&F collections are down materially. '+competitorPlan('convenience'),'Create one test only. Keep the current campaign as the comparison and let the new variation run about a week before judging it.',metrics,'/growth-marketing','CREATE ONE TEST',false);
         return;
       }
 
       if(spend7>=200&&tracked7===0&&(wfChange===null||wfChange<5)){
-        setDecision('ACTION PLAN — IMPROVE THE MESSAGE AND CUSTOMER PATH','You have enough 7-day spend to review the campaign, Google shows no tracked actions, and W&F revenue is not clearly improving. '+competitorPlan('ordering'),'Use one stronger CTA/graphic variation, verify the destination page, and let the test run about a week before judging it.',metrics,'/growth-marketing','CREATE ONE VARIATION →');
+        setDecision('Your own data says to test one stronger message and customer path.','There is enough 7-day spend to review, Google shows no tracked actions, and actual W&F revenue is not clearly improving. '+competitorPlan('ordering'),'Create one stronger CTA/graphic variation, verify the destination page, and let the test run about a week.',metrics,'/growth-marketing','CREATE ONE TEST',false);
         return;
       }
 
       if(spendToday===0&&spend7>0){
-        setDecision('CHECK THE CAMPAIGN BEFORE CHANGING ANYTHING','There was paid activity during the last 7 days, but no spend is showing today.','Check status, schedule and connections first. Do not create a duplicate campaign just because today is quiet.',metrics,'/growth-marketing','CHECK CAMPAIGN →');
+        setDecision('The campaign needs to be checked before you create anything new.','There was paid activity during the last 7 days, but no spend is showing today.','Check status, schedule and connections first. Do not create a duplicate campaign just because today is quiet.',metrics,'/growth-marketing','CHECK CAMPAIGN',false);
         return;
       }
 
       if(wfChange!==null&&wfChange>=-10){
-        setDecision('KEEP RUNNING — NO CHANGE YET','Actual Wash & Fold revenue is roughly stable and the campaign has a full week of useful activity. The 30-day baseline does not justify a major reset.','Hold the campaign steady for another week. Competitor Watch remains reference material until your own numbers give a clear reason to test something new.',metrics,'/','KEEP WATCHING');
+        setDecision('The combined business signal is stable.','Actual W&F revenue is roughly stable and the campaign has useful activity. The 30-day context does not justify a major reset.','Hold the campaign steady for another week. Competitor Watch remains information only.',metrics,'/','GOOD FOR NOW',true);
         return;
       }
 
-      setDecision('KEEP WATCHING — WAIT FOR A CLEAR SIGNAL','The Dashboard has 7-day and 30-day ad activity plus actual collections, but the combined business signal is not strong enough to justify a major change yet.','Stay with the current campaign and review again after roughly another week. Competitor ideas are used only when your own performance says action is needed.',metrics,'/','STAY ON DASHBOARD');
+      setDecision('The combined data does not justify a change yet.','Today, 7-day, 30-day, collections and campaign data are not giving a strong enough signal for a new test.','Keep the current campaign running and review again after roughly another week.',metrics,'/','ON HOLD — KEEP RUNNING',true);
     }catch(e){
-      setDecision('CHECK CONNECTIONS','I could not read all of the live data needed to combine the Dashboard into a reliable action plan.',e.message||'Try again shortly.',['Live recommendation unavailable'],'/','STAY ON DASHBOARD');
+      setDecision('Live data could not be combined right now.','I could not read all of the data needed to make a reliable recommendation.',e.message||'Try again shortly.',['Live recommendation unavailable'],'/','CHECK CONNECTIONS',true);
     }
   }
 
