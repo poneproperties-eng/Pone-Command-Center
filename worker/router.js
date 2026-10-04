@@ -12,9 +12,12 @@ export default {
     const url = new URL(request.url);
 
     if (DASHBOARD_PATHS.has(url.pathname)) {
-      const target = new URL('/index.html', url.origin);
-      target.searchParams.set('v', '20261004-restore');
-      return Response.redirect(target.toString(), 302);
+      const dashboardUrl = new URL('/index.html', url.origin);
+      const dashboardRequest = new Request(dashboardUrl.toString(), {
+        method: 'GET',
+        headers: request.headers
+      });
+      return env.ASSETS.fetch(dashboardRequest);
     }
 
     return core.fetch(request, env, ctx);
