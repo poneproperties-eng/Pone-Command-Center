@@ -2,3 +2,9 @@ wrangler.jsonc
 README.txt
 .git
 .git/**
+.github
+.github/**
+worker
+worker/**
+functions
+functions/**
