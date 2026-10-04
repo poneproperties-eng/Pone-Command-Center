@@ -6,13 +6,13 @@
 <meta name="theme-color" content="#082f49">
 <title>Spin Cycle AI Marketing</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#f0f9ff;color:#0f172a}.shell{height:100%;display:grid;grid-template-rows:auto 1fr}.nav{background:#fff;border-bottom:1px solid #dbeafe;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 3px 12px #0c4a6e12}.brand{display:flex;align-items:center;gap:9px;font-weight:950;color:#075985}.brand img{width:38px;height:38px;object-fit:contain}.tabs{display:flex;gap:6px;flex-wrap:wrap}.tab{border:1px solid #bfdbfe;background:#eff6ff;color:#075985;border-radius:999px;padding:9px 14px;font-weight:900;cursor:pointer}.tab.active{background:#075985;color:#fff}.frame{width:100%;height:100%;border:0;background:#f0f9ff}@media(max-width:620px){.nav{align-items:flex-start;flex-direction:column}.tabs{width:100%}.tab{flex:1}}
+*{box-sizing:border-box}html,body{margin:0;height:100%;font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif;background:#f0f9ff;color:#0f172a}.shell{height:100%;display:grid;grid-template-rows:auto 1fr}.nav{background:#fff;border-bottom:1px solid #dbeafe;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 3px 12px #0c4a6e12;position:relative;z-index:5}.brand{display:flex;align-items:center;gap:9px;font-weight:950;color:#075985}.brand img{width:38px;height:38px;object-fit:contain}.tabs{display:flex;gap:6px;flex-wrap:wrap}.tab{border:1px solid #bfdbfe;background:#eff6ff;color:#075985;border-radius:999px;padding:9px 14px;font-weight:900;cursor:pointer}.tab.active{background:#075985;color:#fff}.frame{width:100%;height:100%;border:0;background:#f0f9ff}@media(max-width:760px){.nav{align-items:flex-start;flex-direction:column}.tabs{width:100%}.tab{flex:1;min-width:130px}}
 </style>
 </head>
 <body>
 <div class="shell">
-<nav class="nav"><div class="brand"><img src="icon-192.png" alt="Spin Cycle"><span>SPIN CYCLE MARKETING</span></div><div class="tabs"><button class="tab" data-page="/?embedded=1">Dashboard</button><button class="tab active" data-page="/campaign-studio.html">AI Campaign Studio</button></div></nav>
-<iframe class="frame" id="appFrame" title="Spin Cycle Marketing" src="/campaign-studio.html"></iframe>
+<nav class="nav"><div class="brand"><img src="icon-192.png" alt="Spin Cycle"><span>SPIN CYCLE MARKETING</span></div><div class="tabs"><button class="tab" data-page="/?embedded=1">Dashboard</button><button class="tab active" data-page="/growth-command-center.html">Growth Command Center</button><button class="tab" data-page="/campaign-studio.html">AI Campaign Studio</button></div></nav>
+<iframe class="frame" id="appFrame" title="Spin Cycle Marketing" src="/growth-command-center.html"></iframe>
 </div>
 <script>
 const frame=document.getElementById('appFrame');document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));btn.classList.add('active');frame.src=btn.dataset.page});
