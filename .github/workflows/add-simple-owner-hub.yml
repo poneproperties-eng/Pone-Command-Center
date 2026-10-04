@@ -1,0 +1,53 @@
+name: Add Simple Owner Hub
+
+on:
+  push:
+    paths:
+      - '.github/workflows/add-simple-owner-hub.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add owner hub to original dashboard
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          marker = 'id="ownerSimpleHub"'
+          if marker in s:
+              print('Owner hub already present; nothing to change.')
+              raise SystemExit(0)
+
+          css = r'''
+.ownerSimpleHub{margin:10px 0 14px;background:linear-gradient(135deg,#fff,#f0f9ff);border:1px solid #bfdbfe;border-radius:16px;padding:14px 16px;box-shadow:0 6px 18px #0c4a6e0c}.ownerSimpleTop{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.ownerSimpleTitle{font-size:18px;font-weight:950;color:#0f3f66}.ownerSimpleSub{font-size:12px;color:#64748b;margin-top:3px}.ownerSimpleSteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:12px}.ownerSimpleBtn{display:block;text-decoration:none;border:1px solid #bfdbfe;border-radius:13px;padding:12px;background:#fff;color:#0f3f66;font-weight:950}.ownerSimpleBtn:hover{border-color:#38bdf8;box-shadow:0 5px 14px #0c4a6e15;transform:translateY(-1px)}.ownerSimpleBtn small{display:block;font-weight:650;color:#64748b;margin-top:4px;line-height:1.3}.ownerSimpleBtn.primary{background:#075985;color:#fff;border-color:#075985}.ownerSimpleBtn.primary small{color:#dbeafe}.ownerSimpleNote{margin-top:9px;font-size:11px;color:#526b8d}.ownerSimpleNote b{color:#0f3f66}@media(max-width:800px){.ownerSimpleSteps{grid-template-columns:1fr}.ownerSimpleBtn{padding:11px}}
+'''
+          head_anchor = '</style></head>'
+          if head_anchor not in s:
+              raise SystemExit('Could not find dashboard style anchor; stopped without changing file.')
+          s = s.replace(head_anchor, css + head_anchor, 1)
+
+          panel = r'''<section class="ownerSimpleHub" id="ownerSimpleHub"><div class="ownerSimpleTop"><div><div class="ownerSimpleTitle">WHAT SHOULD I DO?</div><div class="ownerSimpleSub">Keep it simple. Use these 3 steps in order. Your original dashboard and data stay right below this box.</div></div><div class="pill good">OWNER MODE</div></div><div class="ownerSimpleSteps"><a class="ownerSimpleBtn primary" href="#dashboardNumbers" onclick="document.querySelector('.periods')?.scrollIntoView({behavior:'smooth',block:'center'});return false;">1. LOOK AT MY NUMBERS<small>Use Today, Last 7 Days and Last 30 Days. Review collections, Self-Service, Wash & Fold and Google Ads.</small></a><a class="ownerSimpleBtn" href="/owner-growth.html">2. TELL ME WHAT NEEDS ATTENTION<small>Enter owner code 4398. The app ranks what is weak, what is wasting money and what to work on next.</small></a><a class="ownerSimpleBtn" href="/campaign-studio.html">3. CREATE THIS WEEK'S MARKETING<small>Build and preview the campaign. You approve the offer, budget and advertising before anything paid launches.</small></a></div><div class="ownerSimpleNote"><b>Nothing was removed.</b> Collections, weekly history, Today / 7 Days / 30 Days, Self-Service, Wash & Fold, Google Ads and connection data remain part of this original dashboard.</div></section>'''
+          body_anchor = '</header><div class="status">'
+          if body_anchor not in s:
+              raise SystemExit('Could not find dashboard header anchor; stopped without changing file.')
+          s = s.replace(body_anchor, '</header>' + panel + '<div class="status" id="dashboardNumbers">', 1)
+          p.write_text(s)
+          print('Owner hub added while preserving original dashboard.')
+          PY
+      - name: Commit dashboard enhancement
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "Spin Cycle App Bot"
+          git config user.email "actions@github.com"
+          git add index.html
+          git commit -m "Add simple owner hub to original dashboard"
+          git push
