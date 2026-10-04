@@ -64,7 +64,11 @@
 
   ready(function(){
     addStyle();
-    loadScript('/brand-context.js?v=2','spinBrandContextScript',function(){loadScript('/campaign-visual-preview.js?v=1','spinVisualPreviewScript');});
+    loadScript('/brand-context.js?v=2','spinBrandContextScript',function(){
+      loadScript('/campaign-visual-preview.js?v=1','spinVisualPreviewScript',function(){
+        loadScript('/campaign-preview-brand-fix.js?v=1','spinPreviewBrandFixScript');
+      });
+    });
     var preview=document.getElementById('preview'),advertise=document.getElementById('advertise');
     if(preview)preview.onclick=function(){render('preview');};
     if(advertise)advertise.onclick=function(){render(localStorage.getItem(APPROVED)?'approved':'preview');};
