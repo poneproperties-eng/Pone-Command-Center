@@ -8,18 +8,82 @@ const TOKEN_KEY = 'spin-cycle-google-oauth';
 const CUSTOMER_ID = '1515534333';
 const API_VERSION = 'v25';
 const TIMEZONE = 'America/New_York';
+const OWNER_PIN_SHA256 = '2545a02d836fe85023efc654e841b0e03458a50d8308345ea6360ab2eaecb9cf';
+const OWNER_COOKIE = 'spin_cycle_owner_session';
+const OWNER_STATE_KEY = 'spin-cycle-owner-growth-state-v1';
+const OWNER_SESSION_TTL = 60 * 60 * 12;
 const CORS = {
   'access-control-allow-origin': '*',
-  'access-control-allow-methods': 'GET, OPTIONS',
+  'access-control-allow-methods': 'GET, POST, OPTIONS',
   'access-control-allow-headers': 'Content-Type',
   'access-control-max-age': '86400'
 };
 
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data, null, 2), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...CORS } });
+function json(data, status = 200, extraHeaders = {}) {
+  return new Response(JSON.stringify(data, null, 2), { status, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store', ...CORS, ...extraHeaders } });
 }
 function redirectUri(url) { return `${url.protocol}//${url.host}/oauth/callback`; }
 async function storedTokens(env) { return env.GOOGLE_TOKENS ? env.GOOGLE_TOKENS.get(TOKEN_KEY, { type: 'json' }) : null; }
+function cookieValue(request, name) {
+  const cookie = request.headers.get('cookie') || '';
+  return cookie.match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`))?.[1] || '';
+}
+async function sha256(value) {
+  const data = new TextEncoder().encode(String(value));
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+async function ownerSessionValid(request, env) {
+  if (!env.GOOGLE_TOKENS) return false;
+  const token = cookieValue(request, OWNER_COOKIE);
+  if (!token) return false;
+  const record = await env.GOOGLE_TOKENS.get(`owner-session:${token}`, { type: 'json' }).catch(() => null);
+  return Boolean(record?.ok && record?.expires_at && Date.now() < record.expires_at);
+}
+async function ownerLogin(request, env) {
+  if (!env.GOOGLE_TOKENS) return json({ ok: false, error: 'Owner session storage is not configured.' }, 503);
+  const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+  const throttleKey = `owner-login-fail:${ip}`;
+  const failures = Number(await env.GOOGLE_TOKENS.get(throttleKey).catch(() => 0) || 0);
+  if (failures >= 5) return json({ ok: false, error: 'Too many incorrect attempts. Try again in 10 minutes.' }, 429);
+  let body = {};
+  try { body = await request.json(); } catch {}
+  const pin = String(body?.pin || '').replace(/\D/g, '').slice(0, 4);
+  if (pin.length !== 4 || await sha256(pin) !== OWNER_PIN_SHA256) {
+    await env.GOOGLE_TOKENS.put(throttleKey, String(failures + 1), { expirationTtl: 600 });
+    return json({ ok: false, error: 'Incorrect owner code.' }, 401);
+  }
+  await env.GOOGLE_TOKENS.delete(throttleKey).catch(() => {});
+  const token = crypto.randomUUID().replaceAll('-', '') + crypto.randomUUID().replaceAll('-', '');
+  const expiresAt = Date.now() + OWNER_SESSION_TTL * 1000;
+  await env.GOOGLE_TOKENS.put(`owner-session:${token}`, JSON.stringify({ ok: true, created_at: Date.now(), expires_at: expiresAt }), { expirationTtl: OWNER_SESSION_TTL });
+  return json({ ok: true, owner: true, expires_at: new Date(expiresAt).toISOString() }, 200, {
+    'set-cookie': `${OWNER_COOKIE}=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${OWNER_SESSION_TTL}`
+  });
+}
+async function ownerLogout(request, env) {
+  const token = cookieValue(request, OWNER_COOKIE);
+  if (token && env.GOOGLE_TOKENS) await env.GOOGLE_TOKENS.delete(`owner-session:${token}`).catch(() => {});
+  return json({ ok: true }, 200, { 'set-cookie': `${OWNER_COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=0` });
+}
+async function ownerState(request, env) {
+  if (!await ownerSessionValid(request, env)) return json({ ok: false, error: 'Owner sign-in required.' }, 401);
+  if (!env.GOOGLE_TOKENS) return json({ ok: false, error: 'Owner storage is not configured.' }, 503);
+  if (request.method === 'GET') {
+    const state = await env.GOOGLE_TOKENS.get(OWNER_STATE_KEY, { type: 'json' }).catch(() => null);
+    return json({ ok: true, state: state || null });
+  }
+  if (request.method === 'POST') {
+    let body;
+    try { body = await request.json(); } catch { return json({ ok: false, error: 'Invalid JSON.' }, 400); }
+    const encoded = JSON.stringify(body || {});
+    if (encoded.length > 400000) return json({ ok: false, error: 'Growth state is too large.' }, 413);
+    const state = { ...(body || {}), server_updated_at: new Date().toISOString() };
+    await env.GOOGLE_TOKENS.put(OWNER_STATE_KEY, JSON.stringify(state));
+    return json({ ok: true, saved_at: state.server_updated_at });
+  }
+  return json({ ok: false, error: 'Method not allowed.' }, 405);
+}
 
 async function getAccessToken(env) {
   const saved = await storedTokens(env);
@@ -131,9 +195,15 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (request.method === 'OPTIONS' && url.pathname.startsWith('/api/')) return new Response(null, { status: 204, headers: CORS });
+
+    if (url.pathname === '/api/owner/login' && request.method === 'POST') return ownerLogin(request, env);
+    if (url.pathname === '/api/owner/logout' && request.method === 'POST') return ownerLogout(request, env);
+    if (url.pathname === '/api/owner/status') return json({ ok: true, authenticated: await ownerSessionValid(request, env) });
+    if (url.pathname === '/api/owner/state') return ownerState(request, env);
+
     if (url.pathname === '/api/health') {
       const saved = await storedTokens(env).catch(() => null);
-      return json({ ok: true, app: 'Spin Cycle AI Marketing', runtime: 'cloudflare-worker', google_oauth_configured: Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), token_storage_configured: Boolean(env.GOOGLE_TOKENS), google_connected: Boolean(saved?.refresh_token) });
+      return json({ ok: true, app: 'Spin Cycle AI Marketing', runtime: 'cloudflare-worker', google_oauth_configured: Boolean(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET), token_storage_configured: Boolean(env.GOOGLE_TOKENS), owner_pin_enabled: true, google_connected: Boolean(saved?.refresh_token) });
     }
     if (url.pathname === '/api/google/status') {
       const saved = await storedTokens(env).catch(() => null);
