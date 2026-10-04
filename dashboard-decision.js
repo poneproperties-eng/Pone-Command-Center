@@ -4,30 +4,57 @@
   const COLLECTIONS_API='https://eajtunubzthudvqciesa.supabase.co/functions/v1/spin-cycle-data';
   const money=v=>'$'+Number(v||0).toFixed(2);
 
+  function actionKey(label){
+    const x=String(label||'').toLowerCase();
+    if(x.includes('test one new ad'))return 'test-one-new-ad';
+    if(x.includes('create ads now'))return 'create-ads-now';
+    if(x.includes('check campaign'))return 'check-campaign';
+    if(x.includes('good for now'))return 'good-for-now';
+    if(x.includes('on hold'))return 'on-hold';
+    if(x.includes('check collections'))return 'check-collections';
+    if(x.includes('check connections'))return 'check-connections';
+    if(x.includes('reconnect google'))return 'reconnect-google';
+    return 'review-plan';
+  }
+
+  function signalFor(label){
+    const x=String(label||'').toLowerCase();
+    if(x.includes('test one new ad')||x.includes('create ads now'))return 'ACTION NOW';
+    if(x.includes('on hold'))return 'HOLD';
+    if(x.includes('good for now'))return 'GOOD';
+    if(x.includes('check')||x.includes('reconnect'))return 'ATTENTION';
+    return 'REVIEW';
+  }
+
+  function ensureSignal(){
+    const title=document.getElementById('decisionTitle');if(!title)return null;
+    let s=document.getElementById('decisionSignal');
+    if(!s){s=document.createElement('div');s.id='decisionSignal';s.style.cssText='display:inline-flex;align-items:center;border:1px solid #ffffff45;background:#ffffff18;color:#e0f2fe;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:950;letter-spacing:.08em;margin-bottom:8px';title.parentNode.insertBefore(s,title);}
+    return s;
+  }
+
   function setDecision(title,reason,reminder,metrics,href,label,passive){
     const t=document.getElementById('decisionTitle');
     const r=document.getElementById('decisionReason');
     const rm=document.getElementById('decisionReminder');
     const m=document.getElementById('decisionMetrics');
     const b=document.getElementById('decisionBtn');
+    const s=ensureSignal();
+    const key=actionKey(label);
+    if(s)s.textContent='LIVE SIGNAL • '+signalFor(label);
     if(t){t.textContent=title;t.classList.remove('decisionLoading');}
     if(r)r.textContent=reason;
-    if(rm)rm.textContent=reminder;
-    if(m){m.innerHTML='';(metrics||[]).forEach(text=>{const s=document.createElement('span');s.className='decisionMetric';s.textContent=text;m.appendChild(s);});}
+    if(rm)rm.textContent=reminder+'  This recommendation refreshes automatically from your live Dashboard data.';
+    if(m){m.innerHTML='';(metrics||[]).forEach(text=>{const n=document.createElement('span');n.className='decisionMetric';n.textContent=text;m.appendChild(n);});}
     if(b){
       b.textContent=label||'GOOD FOR NOW';
-      b.href=href||'/';
       b.onclick=null;
       b.removeAttribute('aria-disabled');
       b.style.opacity='1';
       b.style.cursor='pointer';
-      if(passive){
-        b.href='#';
-        b.setAttribute('aria-disabled','true');
-        b.style.opacity='.92';
-        b.style.cursor='default';
-        b.onclick=function(e){e.preventDefault();};
-      }
+      b.title='Open Growth & Marketing and follow this Dashboard recommendation';
+      if(key==='reconnect-google')b.href=href||'/oauth/start';
+      else b.href='/growth-marketing?recommended='+encodeURIComponent(key);
     }
   }
 
