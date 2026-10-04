@@ -1,0 +1,132 @@
+:root{
+  --bg:#eef4f8;
+  --ink:#102235;
+  --muted:#5b7083;
+  --line:#bfd1df;
+  --theme-navy:#07395f;
+  --theme-blue:#0b6ea8;
+  --theme-cyan:#10a9c6;
+  --theme-soft:#f7fbfd;
+  --theme-panel:#ffffff;
+  --theme-border:#b9cfdd;
+  --theme-border-strong:#8fb3c8;
+  --theme-green:#147a49;
+  --theme-green-bg:#e2f5ea;
+  --theme-amber:#8a5a00;
+  --theme-amber-bg:#fff4cf;
+  --theme-red:#a22a2a;
+  --theme-red-bg:#fde8e8;
+}
+
+body{background:#eef4f8!important;color:#102235!important}
+
+/* Existing top header — color only */
+.top{
+  background:linear-gradient(135deg,#052f50 0%,#075f91 55%,#0c9fbd 100%)!important;
+  border:1px solid #0c769f!important;
+  box-shadow:0 8px 22px rgba(7,57,95,.16)!important;
+}
+.top p{color:#d9f2fb!important}
+.range{background:rgba(255,255,255,.14)!important;border-color:rgba(255,255,255,.40)!important}
+.brandLogo{border:1px solid rgba(255,255,255,.65)!important}
+
+/* Navigation */
+.spinCycleTabs{border-bottom:1px solid #c7d8e3!important;padding-bottom:10px!important}
+.spinCycleTab{background:#fff!important;color:#075985!important;border-color:#a9c6d8!important;box-shadow:0 2px 6px rgba(7,57,95,.05)!important}
+.spinCycleTab.active{background:#075985!important;color:#fff!important;border-color:#075985!important}
+
+/* Filters / selectors */
+.simpleSelect,.period,.field input,.field select{
+  border-color:#9fbed1!important;
+  background:#fff!important;
+  color:#163b57!important;
+}
+.simpleSelect:focus,.field input:focus,.field select:focus{
+  outline:3px solid rgba(14,165,200,.16)!important;
+  border-color:#0b7fab!important;
+}
+.period.active{background:#075985!important;color:#fff!important;border-color:#075985!important}
+.viewToggle{background:#e8f2f7!important;border-color:#aac6d6!important}
+.viewToggle button{color:#075985!important}
+.viewToggle button.active{background:#075985!important;color:#fff!important}
+
+/* Main dashboard cards */
+.kpi,.card,.insights,.weeklyChart,.historyAccordion{
+  background:#fff!important;
+  border-color:#b8ccd9!important;
+  box-shadow:0 5px 14px rgba(7,57,95,.07)!important;
+}
+.kpi{border-top:3px solid #5daec9!important}
+.kpi:nth-child(2){border-top-color:#3f8fc1!important}
+.kpi:nth-child(3){border-top-color:#6e91c4!important}
+.kpi:nth-child(4){border-top-color:#4aa98d!important}
+
+.label,.chartTitle,.field label,.serviceHead h3,.headline h2,.section h2{color:#123f61!important}
+.value,.metric b,.rstat b,.graphKpi b,.chartBreakdown b{color:#102f48!important}
+.subtitle,.muted,.live,.campaign,.sourceTime,.metric small,.rstat small,.graphKpi small,.chartBreakdown small{color:#5d7182!important}
+
+.icon{background:#e2f3f8!important;color:#086f9d!important;border:1px solid #b9dce8!important}
+.trend,.metric,.rstat,.graphKpi,.chartBreakdown>div,.campaignInfo{
+  background:#f5fafc!important;
+  border:1px solid #cfe0e8!important;
+  color:#4c677a!important;
+}
+
+/* Revenue / collection entry area */
+.entry,.goalbox{color:#173b54!important}
+.save{background:#075985!important;border:1px solid #064d73!important;box-shadow:0 3px 8px rgba(7,57,95,.14)!important}
+.editCollection{border-color:#a9c7d8!important;color:#075985!important;background:#fff!important}
+.deleteCollection{border-color:#e7b8b8!important;color:#a22a2a!important;background:#fff!important}
+.history{color:#4f697b!important}
+.history div{border-top-color:#d5e1e8!important}
+.historyAccordion summary,.weeklyHistoryToggle,.historyRow.collapsibleHistory{background:#f5fafc!important;border-color:#c6d9e4!important;color:#164e6c!important}
+
+/* Connection area */
+.source{border-bottom-color:#d2e0e8!important}
+.refreshAll{border-color:#9ebed0!important;color:#075985!important;background:#fff!important}
+.connBtn{background:#c93e3e!important;box-shadow:0 3px 8px rgba(169,46,46,.14)!important}
+.connStatus.good,.good{background:#dff3e8!important;color:#146b43!important;border:1px solid #add8c2!important}
+.connStatus.watch,.watch{background:#fff2c9!important;color:#805300!important;border:1px solid #ead28a!important}
+.connStatus.bad,.bad{background:#fbe2e2!important;color:#962b2b!important;border:1px solid #e8b9b9!important}
+
+/* Charts */
+.chartBars{border-bottom-color:#abc6d6!important}
+.chartBar{background:linear-gradient(180deg,#32abc8,#0b6fa8)!important}
+.stackSS{background:linear-gradient(180deg,#34a9c7,#0b6fa8)!important}
+.stackWF{background:linear-gradient(180deg,#8a77c9,#6552aa)!important}
+.chartVal,.wfPart,.ssPart{font-weight:900!important}
+
+/* Next Best Action */
+.ownerDecision{
+  background:linear-gradient(135deg,#062e4d 0%,#07557c 100%)!important;
+  border:2px solid #0d7ca5!important;
+  box-shadow:0 8px 22px rgba(6,46,77,.18)!important;
+}
+.decisionEyebrow,.decisionSource{color:#aee4f2!important}
+.decisionReason,.decisionReminder{color:#e7f6fb!important}
+.decisionMetric{background:rgba(255,255,255,.12)!important;border-color:rgba(255,255,255,.28)!important;color:#fff!important}
+.decisionReminder{background:rgba(255,255,255,.09)!important;border:1px solid rgba(255,255,255,.16)!important}
+.decisionBtn{background:#fff!important;color:#075985!important;border:1px solid #cde8f1!important;box-shadow:0 3px 9px rgba(0,0,0,.10)!important}
+
+/* Competitor information cards */
+.compDash{background:#fff!important;border:1px solid #b7ccd9!important;box-shadow:0 5px 14px rgba(7,57,95,.06)!important}
+.compDashHead h2{color:#123f61!important}
+.compDashHead p,.compDashCard p{color:#5c7183!important}
+.compDashCard{background:#f6fafc!important;border-color:#c7dbe5!important;border-top:3px solid #70a9c2!important}
+.compDashCard b{color:#123f61!important}
+.compMini{background:#e6f1f6!important;color:#075985!important;border:1px solid #bfd5e1!important}
+.compMini.action{background:#23895b!important;color:#fff!important;border-color:#23895b!important}
+
+/* Insight panel and miscellaneous boundaries */
+.insights{background:#f8fcfd!important;border-color:#abc9d9!important}
+.insightlist{color:#4c687a!important}
+.bench{background:#e3f3f7!important;color:#09698e!important;border:1px solid #b8dbe5!important}
+.err{background:#fde7e7!important;color:#962b2b!important;border:1px solid #e6b8b8!important}
+.sync{color:#147046!important}
+
+/* Clearer section separation without moving content */
+.section{border-top:1px solid #c9d9e2!important;padding-top:14px!important}
+.section:first-of-type{border-top-color:transparent!important}
+
+/* Buttons keep their existing actions — visual changes only */
+button,a{transition:background-color .12s ease,border-color .12s ease,box-shadow .12s ease!important}
