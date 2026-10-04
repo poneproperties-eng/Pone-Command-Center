@@ -51,23 +51,27 @@
     }).filter(x=>Number.isFinite(x.wf));
   }
 
+  function percentChange(now,prev){return prev>0?((now-prev)/prev*100):null;}
+
   function competitorPlan(kind){
-    if(kind==='convenience')return 'Competitor reference: HappyNest is strong on convenience, recurring pickup and communication. If you test new creative, beat that with clearer Spin Cycle convenience, Free Pickup messaging and stronger local branding.';
-    if(kind==='trust')return 'Competitor reference: Splash is strong on local trust, reviews and turnaround promises. If you test new creative, strengthen proof, turnaround clarity and local credibility.';
-    if(kind==='ordering')return 'Competitor reference: Laundromax is strong on simple ordering and pickup/delivery positioning. If you test new creative, simplify the CTA and make the next step unmistakable.';
+    if(kind==='convenience')return 'Competitor reference: HappyNest is strong on convenience, recurring pickup and communication. If you test a new ad, beat that with clearer Spin Cycle convenience, Free Pickup messaging and stronger local branding.';
+    if(kind==='trust')return 'Competitor reference: Splash is strong on local trust, reviews and turnaround promises. If you test a new ad, strengthen proof, turnaround clarity and local credibility.';
+    if(kind==='ordering')return 'Competitor reference: Laundromax is strong on simple ordering and pickup/delivery positioning. If you test a new ad, simplify the CTA and make the next step unmistakable.';
     return 'Competitor information is reference only. Your own business data determines whether action is needed.';
   }
 
   async function run(){
     try{
-      const [dr,hr,cr]=await Promise.all([
+      const [dr,hr,cr,wr]=await Promise.all([
         fetch('/api/dashboard',{cache:'no-store'}),
         fetch('/api/system-health',{cache:'no-store'}),
-        fetch(COLLECTIONS_API,{cache:'no-store'})
+        fetch(COLLECTIONS_API,{cache:'no-store'}),
+        fetch('/api/marketing-weekly',{cache:'no-store'})
       ]);
       const d=await dr.json();
       const h=await hr.json();
       const c=await cr.json();
+      const weekly=await wr.json().catch(()=>({ok:false,history:[]}));
       const hc=h.checks||{};
 
       if(!hc.google?.ok||!hc.google_ads?.ok||!d?.periods){
@@ -101,6 +105,16 @@
       const avg7=spend7/7;
       const avg30=spend30/30;
       const spendTrend=avg30>0?((avg7-avg30)/avg30*100):null;
+
+      const history=Array.isArray(weekly.history)?weekly.history:[];
+      const currentWeekEnd=weekly.current?.week_end||null;
+      const completed=history.filter(x=>!currentWeekEnd||x.week_end!==currentWeekEnd);
+      const histLatest=completed.length?completed[completed.length-1]:null;
+      const histPrev=completed.length>1?completed[completed.length-2]:null;
+      const histWfChange=(histLatest&&histPrev)?percentChange(Number(histLatest.wash_fold||0),Number(histPrev.wash_fold||0)):null;
+      const histTotalChange=(histLatest&&histPrev)?percentChange(Number(histLatest.total_collections||0),Number(histPrev.total_collections||0)):null;
+      const histSpendChange=(histLatest&&histPrev)?percentChange(Number(histLatest.ad_spend_7d||0),Number(histPrev.ad_spend_7d||0)):null;
+
       const metrics=['Today spend '+money(spendToday),'7-day ad spend '+money(spend7),'30-day ad spend '+money(spend30),'7-day clicks '+clicks7,'30-day clicks '+clicks30];
       if(wfNow!==null)metrics.push('latest W&F '+money(wfNow));
       if(wfPrev!==null)metrics.push('prior W&F '+money(wfPrev));
@@ -108,6 +122,9 @@
       if(spendTrend!==null)metrics.push('7-day spend pace '+(spendTrend>=0?'+':'')+spendTrend.toFixed(0)+'% vs 30-day pace');
       metrics.push('Google tracked actions 7d '+tracked7+' / 30d '+tracked30);
       if(enabled)metrics.push(enabled+' enabled campaign'+(enabled===1?'':'s'));
+      if(weekly.ok)metrics.push('internal weekly history '+history.length+' week'+(history.length===1?'':'s'));
+      if(histWfChange!==null)metrics.push('stored W&F trend '+(histWfChange>=0?'+':'')+histWfChange.toFixed(0)+'%');
+      if(histTotalChange!==null)metrics.push('stored total revenue trend '+(histTotalChange>=0?'+':'')+histTotalChange.toFixed(0)+'%');
 
       if(!cr.ok||!c.ok){
         setDecision('Collections data needs attention.','Your ad data is available, but actual collections are missing, so I cannot combine the full Dashboard into a reliable recommendation.','Fix collections data first. Competitor information should never trigger an ad change by itself.',metrics,'/','CHECK COLLECTIONS',true);
@@ -120,22 +137,30 @@
       }
 
       if(spendToday>0&&(spend7<200||clicks7<30)){
-        setDecision('The current ads are still gathering useful data.','Today, 7-day, 30-day and revenue data do not justify changing the campaign yet.','Hold it steady until you have about a full week of meaningful activity. Do not react to competitor ideas yet.',metrics,'/','ON HOLD — KEEP RUNNING',true);
+        setDecision('The current ads are still gathering useful data.','Today, 7-day, 30-day and revenue data do not justify changing the campaign yet.','Hold it steady until you have about a full week of meaningful activity. The app is saving the weekly result internally for future comparisons.',metrics,'/','ON HOLD — KEEP RUNNING',true);
+        return;
+      }
+
+      if(histWfChange!==null&&histWfChange>=10){
+        setDecision('Your stored weekly history shows Wash & Fold improving.','The app has retained prior weekly results and the completed-week W&F trend is improving.','Do not disturb a campaign that is helping the business. Keep it running and add another weekly result before changing it.',metrics,'/','GOOD FOR NOW',true);
         return;
       }
 
       if(wfChange!==null&&wfChange>=10){
-        setDecision('Your actual Wash & Fold result is improving.','Revenue improved versus the prior recorded week while paid activity remains meaningful.','Do not disturb a campaign that is helping the business. Review again after another week.',metrics,'/','GOOD FOR NOW',true);
+        setDecision('Your actual Wash & Fold result is improving.','Revenue improved versus the prior recorded week while paid activity remains meaningful.','Do not disturb a campaign that is helping the business. Review again after another week; this week is being saved internally.',metrics,'/','GOOD FOR NOW',true);
         return;
       }
 
+      const historyConfirmsWeakness=(histWfChange!==null&&histWfChange<=-10)||(histTotalChange!==null&&histTotalChange<=-10);
       if(spend7>=200&&wfChange!==null&&wfChange<=-15){
-        setDecision('Your own data says one controlled creative test is justified.','You have about a week of meaningful ad activity and actual W&F collections are down materially. '+competitorPlan('convenience'),'Create one test only. Keep the current campaign as the comparison and let the new variation run about a week before judging it.',metrics,'/growth-marketing','CREATE ONE TEST',false);
+        const historyNote=historyConfirmsWeakness?' Internal weekly history also shows weakening results.':' The app will compare this test with the stored weekly history.';
+        setDecision('One controlled ad test is justified.','You have about a week of meaningful ad activity and actual W&F collections are down materially.'+historyNote+' '+competitorPlan('convenience'),'Test one new ad only. Keep the current ad as the comparison and let the new variation run about a week before judging it.',metrics,'/growth-marketing','TEST ONE NEW AD',false);
         return;
       }
 
       if(spend7>=200&&tracked7===0&&(wfChange===null||wfChange<5)){
-        setDecision('Your own data says to test one stronger message and customer path.','There is enough 7-day spend to review, Google shows no tracked actions, and actual W&F revenue is not clearly improving. '+competitorPlan('ordering'),'Create one stronger CTA/graphic variation, verify the destination page, and let the test run about a week.',metrics,'/growth-marketing','CREATE ONE TEST',false);
+        const historyNote=(histSpendChange!==null&&histSpendChange>=0&&historyConfirmsWeakness)?' Stored weekly history shows spend holding or rising while business results weaken.':'';
+        setDecision('Test one stronger message and customer path.','There is enough 7-day spend to review, Google shows no tracked actions, and actual W&F revenue is not clearly improving.'+historyNote+' '+competitorPlan('ordering'),'Test one new ad with a stronger CTA/graphic, verify the destination page, and let it run about a week.',metrics,'/growth-marketing','TEST ONE NEW AD',false);
         return;
       }
 
@@ -144,12 +169,12 @@
         return;
       }
 
-      if(wfChange!==null&&wfChange>=-10){
-        setDecision('The combined business signal is stable.','Actual W&F revenue is roughly stable and the campaign has useful activity. The 30-day context does not justify a major reset.','Hold the campaign steady for another week. Competitor Watch remains information only.',metrics,'/','GOOD FOR NOW',true);
+      if((histWfChange!==null&&histWfChange>=-10)||(wfChange!==null&&wfChange>=-10)){
+        setDecision('The combined business signal is stable.','Current data plus the app’s stored weekly history do not justify a major reset.','Hold the campaign steady for another week. The next weekly snapshot will be added automatically and used in the next recommendation.',metrics,'/','GOOD FOR NOW',true);
         return;
       }
 
-      setDecision('The combined data does not justify a change yet.','Today, 7-day, 30-day, collections and campaign data are not giving a strong enough signal for a new test.','Keep the current campaign running and review again after roughly another week.',metrics,'/','ON HOLD — KEEP RUNNING',true);
+      setDecision('The combined data does not justify a change yet.','Today, 7-day, 30-day, collections and stored weekly history are not giving a strong enough signal for a new test.','Keep the current campaign running. The app will continue building weekly history and use it to guide the next decision.',metrics,'/','ON HOLD — KEEP RUNNING',true);
     }catch(e){
       setDecision('Live data could not be combined right now.','I could not read all of the data needed to make a reliable recommendation.',e.message||'Try again shortly.',['Live recommendation unavailable'],'/','CHECK CONNECTIONS',true);
     }
