@@ -1,6 +1,17 @@
 (function(){
   'use strict';
   function ready(fn){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fn,{once:true});else fn();}
+  function positionDashboardLayers(){
+    var top=document.querySelector('.top');
+    var tabs=document.querySelector('.spinCycleTabs');
+    var decision=document.querySelector('.ownerDecisionWrap');
+    if(!top)return;
+    if(tabs)top.insertAdjacentElement('afterend',tabs);
+    if(decision){
+      if(tabs)tabs.insertAdjacentElement('afterend',decision);
+      else top.insertAdjacentElement('afterend',decision);
+    }
+  }
   function makeSelect(id,labelText,options,onChange){
     var wrap=document.createElement('div');wrap.className='simpleSelectWrap';
     var label=document.createElement('label');label.className='simpleSelectLabel';label.htmlFor=id;label.textContent=labelText;
@@ -36,5 +47,5 @@
       a.setAttribute('title','Competitor information is reference data. Your Dashboard decides when action is justified.');
     });
   }
-  ready(function(){setupPeriodDropdown();setupCollectionsDropdown();setupCompetitorWatch();});
+  ready(function(){positionDashboardLayers();setupPeriodDropdown();setupCollectionsDropdown();setupCompetitorWatch();});
 })();
