@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#082f49">
+<title>Spin Cycle Owner Hub</title>
+<style>
+:root{--navy:#082f49;--blue:#075985;--sky:#e0f2fe;--bg:#f0f9ff;--ink:#0f172a;--muted:#64748b;--line:#bfdbfe;--green:#166534;--greenbg:#dcfce7;--amber:#92400e;--amberbg:#fef3c7;--red:#991b1b;--redbg:#fee2e2}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}.wrap{max-width:1100px;margin:auto;padding:14px}.hero{background:linear-gradient(135deg,#082f49,#0369a1,#06b6d4);color:white;border-radius:20px;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:14px}.hero h1{margin:0;font-size:28px}.hero p{margin:5px 0 0;color:#e0f2fe}.home{background:#fff;color:#075985;border:0;border-radius:12px;padding:11px 15px;font-weight:900;text-decoration:none;white-space:nowrap}.intro{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px}.intro b{font-size:20px;color:#0f3f66}.steps{display:grid;gap:12px;margin-top:14px}.step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;display:grid;grid-template-columns:54px 1fr auto;gap:13px;align-items:center}.num{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--sky);color:var(--blue);font-size:22px;font-weight:950}.step h2{font-size:20px;margin:0 0 4px}.step p{margin:0;color:var(--muted);font-size:14px}.go{border:0;border-radius:12px;background:var(--blue);color:#fff;padding:12px 16px;font-weight:900;text-decoration:none;cursor:pointer;text-align:center}.go.green{background:#16a34a}.go.light{background:#e0f2fe;color:#075985}.health{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-top:14px}.healthTop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.health h2{margin:0;font-size:21px}.refresh{border:1px solid var(--line);background:white;color:#075985;border-radius:999px;padding:9px 13px;font-weight:850;cursor:pointer}.checks{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:12px}.check{border:1px solid #e2e8f0;background:#f8fbff;border-radius:12px;padding:12px}.check b{display:block;margin-bottom:4px}.status{font-size:12px;font-weight:900;border-radius:999px;padding:5px 9px;display:inline-block;margin-top:7px}.ok{background:var(--greenbg);color:var(--green)}.bad{background:var(--redbg);color:var(--red)}.wait{background:var(--amberbg);color:var(--amber)}.next{margin-top:12px;padding:12px;border-radius:12px;background:#eff6ff;color:#0f3f66;font-weight:850}.more{margin-top:14px;background:white;border:1px solid var(--line);border-radius:16px;overflow:hidden}.more summary{cursor:pointer;padding:15px 16px;font-weight:900;color:#075985}.moreBody{padding:0 16px 16px}.tools{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.tool{border:1px solid #dbeafe;background:#f8fbff;border-radius:12px;padding:12px}.tool b{display:block;color:#0f3f66;margin-bottom:4px}.tool span{color:#64748b;font-size:13px}.foot{margin:16px 2px 30px;color:#64748b;font-size:12px;text-align:center}@media(max-width:720px){.hero{align-items:flex-start;flex-direction:column}.step{grid-template-columns:48px 1fr}.step .go{grid-column:1/-1}.checks,.tools{grid-template-columns:1fr}.wrap{padding:8px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero"><div><h1>SPIN CYCLE OWNER HUB</h1><p>Simple steps. The original dashboard stays unchanged.</p></div><a class="home" href="/index.html">My Original Dashboard</a></header>
+
+<div class="intro"><b>You only need to do 3 things.</b><div style="margin-top:5px;color:#64748b">Look at the numbers → let the app tell you what needs attention → approve the fix. The complicated tools stay in the background.</div></div>
+
+<section class="health">
+<div class="healthTop"><div><h2>First: Are my data connections working?</h2><div style="color:#64748b;font-size:13px">This checks the real connections, not just a green label.</div></div><button class="refresh" id="refresh">↻ Check Now</button></div>
+<div class="checks" id="checks"><div class="check"><b>Checking connections…</b><span class="status wait">PLEASE WAIT</span></div></div>
+<div class="next" id="next">Checking what you should do next…</div>
+</section>
+
+<div class="steps">
+<div class="step"><div class="num">1</div><div><h2>Look at My Numbers</h2><p>Today, Last 7 Days, Last 30 Days, collections, Self-Service, Wash & Fold and Google Ads.</p></div><a class="go light" href="/index.html">OPEN DASHBOARD</a></div>
+<div class="step"><div class="num">2</div><div><h2>Tell Me What to Fix</h2><p>AI ranks the biggest problem or opportunity so you do not have to analyze all the marketing numbers yourself.</p></div><a class="go" href="/owner-growth.html">WHAT SHOULD I FIX?</a></div>
+<div class="step"><div class="num">3</div><div><h2>Fix It for Me</h2><p>Create the weekly Wash & Fold, Pickup & Delivery or commercial campaign, preview it, then approve before spending money.</p></div><a class="go green" href="/campaign-studio.html">CREATE MARKETING</a></div>
+</div>
+
+<details class="more"><summary>More powerful tools — only open this when you need them</summary><div class="moreBody"><div class="tools">
+<div class="tool"><b>Commercial Hunter</b><span>Door-to-door leads, follow-ups, quotes, test bags, pounds/week and recurring commercial revenue.</span></div>
+<div class="tool"><b>Customer Retention</b><span>First-time customers, repeats, recurring orders, reactivation and referrals.</span></div>
+<div class="tool"><b>Funnel & Website</b><span>Find where clicks turn into orders — or where customers are dropping out.</span></div>
+<div class="tool"><b>Campaign Intelligence</b><span>Track spend, actual orders, revenue, cost/new customer, ROAS and winning/losing ads.</span></div>
+<div class="tool"><b>Creative Library</b><span>Keep real Spin Cycle photos/videos, AI creative, testimonials and winning campaigns together.</span></div>
+<div class="tool"><b>Safety & Stability</b><span>No paid launch without your approval, price/budget guardrails, connection health, autosave and backups.</span></div>
+</div><div style="margin-top:12px"><a class="go" href="/owner-growth.html">OPEN ALL GROWTH TOOLS</a></div></div></details>
+<div class="foot">Spin Cycle AI Marketing • Reynoldsburg, Ohio • Original dashboard preserved</div>
+</div>
+<script>
+const checks=document.getElementById('checks'),next=document.getElementById('next'),refresh=document.getElementById('refresh');
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+async function loadHealth(){refresh.disabled=true;refresh.textContent='↻ Checking…';checks.innerHTML='<div class="check"><b>Checking connections…</b><span class="status wait">PLEASE WAIT</span></div>';next.textContent='Checking what you should do next…';try{const r=await fetch('/api/system-health',{cache:'no-store'}),d=await r.json();checks.innerHTML=Object.values(d.checks||{}).map(x=>`<div class="check"><b>${esc(x.label)}</b><div style="color:#64748b;font-size:13px">${esc(x.detail)}</div><span class="status ${x.ok?'ok':'bad'}">${x.ok?'WORKING':'NEEDS ATTENTION'}</span></div>`).join('');next.textContent='NEXT STEP: '+(d.next_action||'Review your dashboard.')}catch(e){checks.innerHTML='<div class="check"><b>Connection check could not run</b><div style="color:#64748b;font-size:13px">'+esc(e.message)+'</div><span class="status bad">NEEDS ATTENTION</span></div>';next.textContent='NEXT STEP: Open the original dashboard. If data is missing, the app server needs attention.'}finally{refresh.disabled=false;refresh.textContent='↻ Check Now'}}
+refresh.onclick=loadHealth;loadHealth();
+</script>
+</body>
+</html>
