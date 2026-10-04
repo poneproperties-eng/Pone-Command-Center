@@ -1,6 +1,6 @@
 {
   "name": "spin-cycle-ai-marketing",
-  "main": "worker/router.js",
+  "main": "worker/safe-router.js",
   "compatibility_date": "2026-09-08",
   "kv_namespaces": [
     {
