@@ -1,0 +1,12 @@
+{
+  "name": "spin-cycle-ai-marketing",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy --config wrangler.jsonc",
+    "check": "wrangler deploy --dry-run --config wrangler.jsonc"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}
