@@ -37,16 +37,20 @@ async function checkCollections() {
 }
 
 export async function systemHealth(core, request, env, ctx) {
-  const [worker, google, dashboard, collections] = await Promise.all([
+  const [worker, google, dashboard, discover, collections] = await Promise.all([
     checkCore(core, '/api/health', request, env, ctx),
     checkCore(core, '/api/google/status', request, env, ctx),
     checkCore(core, '/api/dashboard', request, env, ctx),
+    checkCore(core, '/api/google/discover', request, env, ctx),
     checkCollections()
   ]);
 
   const googleConnected = Boolean(google.ok && google.data?.connected);
   const adsWorking = Boolean(dashboard.ok && dashboard.data?.periods);
   const ownerStorage = Boolean(env.GOOGLE_TOKENS);
+  const bp = discover.data?.business_profile || {};
+  const bpAccounts = Array.isArray(bp.accounts) ? bp.accounts : [];
+  const businessProfileWorking = Boolean(discover.ok && bp.ok && bpAccounts.length > 0);
 
   const checks = {
     worker: {
@@ -64,6 +68,13 @@ export async function systemHealth(core, request, env, ctx) {
       label: 'Google Ads data',
       detail: adsWorking ? 'Today / 7 Days / 30 Days data is responding' : (dashboard.data?.error || dashboard.error || 'Google Ads data needs attention')
     },
+    business_profile: {
+      ok: businessProfileWorking,
+      label: 'Google Business Profile',
+      detail: businessProfileWorking
+        ? `Connected • ${bpAccounts.length} accessible account${bpAccounts.length === 1 ? '' : 's'}`
+        : (bp.error || discover.data?.error || 'Reconnect Google and approve Business Profile access')
+    },
     collections: {
       ok: collections.ok,
       label: 'Collections & revenue data',
@@ -78,12 +89,18 @@ export async function systemHealth(core, request, env, ctx) {
 
   const allOk = Object.values(checks).every(item => item.ok);
   const needsGoogle = !checks.google.ok || !checks.google_ads.ok;
+  const needsBusinessProfile = !checks.business_profile.ok;
 
   return new Response(JSON.stringify({
     ok: allOk,
     generated_at: new Date().toISOString(),
     overall: allOk ? 'working' : 'needs_attention',
-    next_action: needsGoogle ? 'Reconnect Google first.' : (!checks.collections.ok ? 'Check collections storage.' : 'Connections are healthy.'),
+    next_action: needsGoogle
+      ? 'Reconnect Google first.'
+      : (needsBusinessProfile
+        ? 'Reconnect Google Business Profile and approve access.'
+        : (!checks.collections.ok ? 'Check collections storage.' : 'Connections are healthy.')),
+    reconnect_google_url: '/oauth/start',
     checks
   }, null, 2), {
     status: 200,
