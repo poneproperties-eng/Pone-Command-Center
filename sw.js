@@ -1,4 +1,4 @@
-const CACHE="spin-cycle-marketing-v6-20261004";
+const CACHE="spin-cycle-marketing-v7-20261004";
 const ASSETS=["/","/index.html","/spin-cycle-ai-marketing.html","/owner-growth.html","/growth-command-center.html","/campaign-studio.html","/manifest.json","/icon-192.png?v=20261004-1","/icon-512.png?v=20261004-1"];
 self.addEventListener("install",event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));});
 self.addEventListener("activate",event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()));});
