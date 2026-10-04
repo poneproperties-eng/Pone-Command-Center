@@ -3,7 +3,7 @@
   "name": "Spin Cycle Marketing",
   "short_name": "Spin Cycle",
   "description": "Spin Cycle laundromat marketing, growth, commercial sales, collections and profitability command center.",
-  "start_url": "/index.html?source=pwa",
+  "start_url": "/spin-cycle-ai-marketing.html?source=pwa",
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
