@@ -5,6 +5,7 @@
   var BRAND={
     name:'Spin Cycle Laundromat',
     phone:'614.570.9603',
+    address:'60 Rosehill Road, Reynoldsburg, Ohio 43068',
     reviewProof:'Nearly 300 5-star reviews',
     logo:'/icon-512.png',
     washFoldUrl:'https://www.spincyclecolumbus.com/wash-and-fold/',
@@ -36,14 +37,31 @@
 
   function roundedRect(ctx,x,y,w,h,r,fill){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();ctx.fillStyle=fill;ctx.fill();}
   function wrap(ctx,text,maxWidth){var words=String(text||'').split(/\s+/),lines=[],line='';words.forEach(function(word){var test=line?line+' '+word:word;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=word;}else line=test;});if(line)lines.push(line);return lines;}
-  function drawWrapped(ctx,text,x,y,maxWidth,lineHeight,maxLines){var lines=wrap(ctx,text,maxWidth).slice(0,maxLines||99);lines.forEach(function(line,i){ctx.fillText(line,x,y+i*lineHeight);});return y+lines.length*lineHeight;}
+  function drawWrapped(ctx,text,x,y,maxWidth,lineHeight,maxLines){var lines=wrap(ctx,text,maxWidth).slice(0,maxLines||99);lines.forEach(function(line,i){ctx.fillText(line,x,y+i*lineHeight);});return lines.length;}
   function loadImage(src){return new Promise(function(resolve,reject){var i=new Image();i.onload=function(){resolve(i);};i.onerror=reject;i.src=src;});}
+
+  function getVisibleBounds(img){
+    try{
+      var c=document.createElement('canvas');c.width=img.naturalWidth||img.width;c.height=img.naturalHeight||img.height;
+      var x=c.getContext('2d');x.drawImage(img,0,0,c.width,c.height);
+      var d=x.getImageData(0,0,c.width,c.height).data,minX=c.width,minY=c.height,maxX=-1,maxY=-1;
+      for(var yy=0;yy<c.height;yy+=2){for(var xx=0;xx<c.width;xx+=2){var n=(yy*c.width+xx)*4,a=d[n+3],r=d[n],g=d[n+1],b=d[n+2];if(a>20&&(r<242||g<242||b<242)){if(xx<minX)minX=xx;if(xx>maxX)maxX=xx;if(yy<minY)minY=yy;if(yy>maxY)maxY=yy;}}}
+      if(maxX<minX||maxY<minY)return {x:0,y:0,w:c.width,h:c.height};
+      var mx=Math.max(2,Math.round((maxX-minX)*.03)),my=Math.max(2,Math.round((maxY-minY)*.06));
+      return {x:Math.max(0,minX-mx),y:Math.max(0,minY-my),w:Math.min(c.width,maxX-minX+mx*2),h:Math.min(c.height,maxY-minY+my*2)};
+    }catch(e){return {x:0,y:0,w:img.naturalWidth||img.width,h:img.naturalHeight||img.height};}
+  }
+
+  function drawLogoFitted(ctx,img,x,y,w,h){
+    var b=getVisibleBounds(img),scale=Math.min((w*.88)/b.w,(h*.84)/b.h),dw=b.w*scale,dh=b.h*scale,dx=x+(w-dw)/2,dy=y+(h-dh)/2;
+    ctx.drawImage(img,b.x,b.y,b.w,b.h,dx,dy,dw,dh);
+  }
 
   function variantText(p,index){
     var main=(p&&p.hook)||'Get your time back.';
     if(index===0)return main;
     if(index===1)return goal()==='pud'?'Free Pickup. Fresh Laundry. More Time.':'Laundry Done Right. Without Losing Your Day.';
-    if(index===2)return BRAND.reviewProof+'. Local Laundry You Can Trust.';
+    if(index===2)return 'Nearly 300 5-Star Reviews. Reynoldsburg Trusts Spin Cycle.';
     if(index===3)return goal()==='pud'?'We Pick It Up. We Wash It. We Bring It Back.':'Drop It Off. Pick It Up Fresh & Folded.';
     if(index===4)return serviceName()+' MADE EASY';
     return goal()==='pud'?'FREE PICKUP — SCHEDULE TODAY':'LET US DO YOUR LAUNDRY';
@@ -53,17 +71,41 @@
     var w=1080,h=vertical?1920:1080;canvas.width=w;canvas.height=h;var ctx=canvas.getContext('2d');
     var grad=ctx.createLinearGradient(0,0,w,h);grad.addColorStop(0,'#082f49');grad.addColorStop(.55,'#0369a1');grad.addColorStop(1,'#06b6d4');ctx.fillStyle=grad;ctx.fillRect(0,0,w,h);
     ctx.globalAlpha=.14;ctx.fillStyle='#ffffff';[[.82,.15,.17],[.12,.78,.2],[.88,.82,.1],[.18,.18,.08]].forEach(function(b){ctx.beginPath();ctx.arc(w*b[0],h*b[1],w*b[2],0,Math.PI*2);ctx.fill();});ctx.globalAlpha=1;
+
     var pad=vertical?78:66;
-    try{var logo=await loadImage(BRAND.logo);var size=vertical?180:150;roundedRect(ctx,pad,pad,size,size,26,'#ffffff');ctx.drawImage(logo,pad+10,pad+10,size-20,size-20);}catch(e){}
-    ctx.fillStyle='#ffffff';ctx.font='900 '+(vertical?56:46)+'px system-ui,Segoe UI,Arial';ctx.fillText('SPIN CYCLE',vertical?290:250,pad+(vertical?82:70));
-    ctx.font='800 '+(vertical?30:24)+'px system-ui,Segoe UI,Arial';ctx.fillStyle='#bae6fd';ctx.fillText(serviceName(),vertical?290:250,pad+(vertical?132:112));
-    var headline=variantText(p,index);ctx.fillStyle='#ffffff';ctx.font='950 '+(vertical?92:72)+'px system-ui,Segoe UI,Arial';var headY=vertical?470:360;headY=drawWrapped(ctx,headline,pad,headY,w-pad*2,vertical?108:84,4);
+    var logoW=vertical?260:230,logoH=vertical?180:150;
+    try{var logo=await loadImage(BRAND.logo);roundedRect(ctx,pad,pad,logoW,logoH,24,'#ffffff');drawLogoFitted(ctx,logo,pad,pad,logoW,logoH);}catch(e){}
+
+    var brandX=pad+logoW+(vertical?38:32);
+    ctx.fillStyle='#ffffff';ctx.font='900 '+(vertical?56:46)+'px system-ui,Segoe UI,Arial';ctx.fillText('SPIN CYCLE',brandX,pad+(vertical?80:68));
+    ctx.font='800 '+(vertical?30:24)+'px system-ui,Segoe UI,Arial';ctx.fillStyle='#bae6fd';ctx.fillText(serviceName(),brandX,pad+(vertical?132:110));
+
+    var headline=variantText(p,index);
+    var headlineFont=vertical?(index===2?78:92):(index===2?60:72);
+    var headlineLine=vertical?(index===2?92:108):(index===2?70:82);
+    var headlineY=vertical?500:355;
+    ctx.fillStyle='#ffffff';ctx.font='950 '+headlineFont+'px system-ui,Segoe UI,Arial';
+    drawWrapped(ctx,headline,pad,headlineY,w-pad*2,headlineLine,vertical?4:3);
+
     var offer=(p&&p.offer)||'';if(goal()==='pud'&&BRAND.freePickup&&!/free pickup/i.test(offer))offer='FREE PICKUP • '+offer;
-    if(offer){roundedRect(ctx,pad,headY+28,w-pad*2,vertical?150:120,24,'#ffffff');ctx.fillStyle='#075985';ctx.font='950 '+(vertical?46:38)+'px system-ui,Segoe UI,Arial';drawWrapped(ctx,offer,pad+28,headY+(vertical?118:103),w-pad*2-56,vertical?54:46,2);headY+=vertical?210:165;}
-    ctx.fillStyle='#e0f2fe';ctx.font='800 '+(vertical?40:31)+'px system-ui,Segoe UI,Arial';drawWrapped(ctx,serviceSub(),pad,headY+35,w-pad*2,vertical?52:42,3);
-    var proofY=vertical?h-520:h-330;roundedRect(ctx,pad,proofY,w-pad*2,vertical?170:130,22,'rgba(255,255,255,.13)');ctx.fillStyle='#ffffff';ctx.font='900 '+(vertical?38:30)+'px system-ui,Segoe UI,Arial';ctx.fillText('★★★★★  '+BRAND.reviewProof,pad+26,proofY+(vertical?68:55));ctx.font='800 '+(vertical?34:27)+'px system-ui,Segoe UI,Arial';ctx.fillText(BRAND.phone,pad+26,proofY+(vertical?125:100));
-    var cta=(p&&p.cta)||(goal()==='pud'?'Schedule Free Pickup':'Order Wash & Fold');var ctaY=vertical?h-290:h-165;roundedRect(ctx,pad,ctaY,w-pad*2,vertical?120:96,22,'#ffffff');ctx.fillStyle='#075985';ctx.font='950 '+(vertical?42:34)+'px system-ui,Segoe UI,Arial';ctx.textAlign='center';ctx.fillText(String(cta).toUpperCase(),w/2,ctaY+(vertical?76:61));ctx.textAlign='left';
-    ctx.fillStyle='#e0f2fe';ctx.font='700 '+(vertical?22:18)+'px system-ui,Segoe UI,Arial';ctx.textAlign='center';ctx.fillText(destination().replace('https://',''),w/2,h-(vertical?75:38));ctx.textAlign='left';
+    var offerY=vertical?930:580,offerH=vertical?150:118;
+    if(offer){roundedRect(ctx,pad,offerY,w-pad*2,offerH,24,'#ffffff');ctx.fillStyle='#075985';ctx.font='950 '+(vertical?46:37)+'px system-ui,Segoe UI,Arial';drawWrapped(ctx,offer,pad+28,offerY+(vertical?94:75),w-pad*2-56,vertical?54:44,2);}
+
+    var serviceY=vertical?1165:750;
+    ctx.fillStyle='#e0f2fe';ctx.font='800 '+(vertical?40:30)+'px system-ui,Segoe UI,Arial';drawWrapped(ctx,serviceSub(),pad,serviceY,w-pad*2,vertical?52:40,2);
+
+    var proofY=vertical?1385:800,proofH=vertical?190:118;
+    roundedRect(ctx,pad,proofY,w-pad*2,proofH,22,'rgba(255,255,255,.15)');
+    ctx.fillStyle='#ffffff';ctx.font='900 '+(vertical?38:29)+'px system-ui,Segoe UI,Arial';ctx.fillText('★★★★★  '+BRAND.reviewProof,pad+26,proofY+(vertical?62:48));
+    ctx.font='950 '+(vertical?44:35)+'px system-ui,Segoe UI,Arial';ctx.fillText(BRAND.phone,pad+26,proofY+(vertical?126:92));
+
+    var cta=(p&&p.cta)||(goal()==='pud'?'Schedule Free Pickup':'Order Wash & Fold');
+    var ctaY=vertical?1630:932,ctaH=vertical?120:92;
+    roundedRect(ctx,pad,ctaY,w-pad*2,ctaH,22,'#ffffff');ctx.fillStyle='#075985';ctx.font='950 '+(vertical?42:34)+'px system-ui,Segoe UI,Arial';ctx.textAlign='center';ctx.fillText(String(cta).toUpperCase(),w/2,ctaY+(vertical?76:59));ctx.textAlign='left';
+
+    ctx.fillStyle='#e0f2fe';ctx.textAlign='center';
+    ctx.font='800 '+(vertical?25:19)+'px system-ui,Segoe UI,Arial';ctx.fillText(BRAND.address,w/2,vertical?1815:1044);
+    ctx.font='700 '+(vertical?22:17)+'px system-ui,Segoe UI,Arial';ctx.fillText(destination().replace('https://',''),w/2,vertical?1860:1070);ctx.textAlign='left';
   }
 
   function downloadCanvas(canvas,name){var a=document.createElement('a');a.download=name+'.png';a.href=canvas.toDataURL('image/png');document.body.appendChild(a);a.click();a.remove();}
