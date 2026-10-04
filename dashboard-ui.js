@@ -24,5 +24,17 @@
     group.classList.add('simpleHidden');group.parentNode.insertBefore(ui.wrap,group);ui.select.value='collections-summary';
     var summary=buttons.find(function(x){return x.dataset.view==='collections-summary';});if(summary)summary.click();
   }
-  ready(function(){setupPeriodDropdown();setupCollectionsDropdown();});
+  function setupCompetitorWatch(){
+    var section=document.querySelector('.compDash');if(!section)return;
+    var intro=section.querySelector('.compDashHead p');
+    if(intro)intro.textContent='Competitor intelligence is combined with your own 7-day, 30-day and revenue data before the Dashboard recommends any change.';
+    [].slice.call(section.querySelectorAll('.compMini.action')).forEach(function(a){
+      a.textContent='USED IN ACTION PLAN';
+      a.href='/competitor-watch.html';
+      a.style.background='#e2e8f0';
+      a.style.color='#475569';
+      a.setAttribute('title','Competitor information is reference data. Your Dashboard decides when action is justified.');
+    });
+  }
+  ready(function(){setupPeriodDropdown();setupCollectionsDropdown();setupCompetitorWatch();});
 })();
