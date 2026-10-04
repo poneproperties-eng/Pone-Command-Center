@@ -35,17 +35,25 @@
     group.classList.add('simpleHidden');group.parentNode.insertBefore(ui.wrap,group);ui.select.value='collections-summary';
     var summary=buttons.find(function(x){return x.dataset.view==='collections-summary';});if(summary)summary.click();
   }
+  function setupDecisionCard(){
+    var eyebrow=document.querySelector('.decisionEyebrow');
+    if(eyebrow)eyebrow.style.display='none';
+    var btn=document.getElementById('decisionBtn');
+    if(btn){
+      btn.style.minWidth='220px';
+      btn.style.fontSize='15px';
+      btn.style.padding='14px 18px';
+    }
+  }
   function setupCompetitorWatch(){
     var section=document.querySelector('.compDash');if(!section)return;
     var intro=section.querySelector('.compDashHead p');
-    if(intro)intro.textContent='Competitor intelligence is combined with your own 7-day, 30-day and revenue data before the Dashboard recommends any change.';
-    [].slice.call(section.querySelectorAll('.compMini.action')).forEach(function(a){
-      a.textContent='USED IN ACTION PLAN';
-      a.href='/competitor-watch.html';
-      a.style.background='#e2e8f0';
-      a.style.color='#475569';
-      a.setAttribute('title','Competitor information is reference data. Your Dashboard decides when action is justified.');
+    if(intro)intro.textContent='Reference only. Your Dashboard combines your own data first, then uses competitor information only to help shape the plan.';
+    [].slice.call(section.querySelectorAll('.compMini.action')).forEach(function(a){a.remove();});
+    [].slice.call(section.querySelectorAll('.compDashActions')).forEach(function(row){
+      var open=row.querySelector('.compMini');
+      if(open){open.style.flex='1 1 100%';open.textContent='OPEN SITE';}
     });
   }
-  ready(function(){positionDashboardLayers();setupPeriodDropdown();setupCollectionsDropdown();setupCompetitorWatch();});
+  ready(function(){positionDashboardLayers();setupPeriodDropdown();setupCollectionsDropdown();setupDecisionCard();setupCompetitorWatch();});
 })();
