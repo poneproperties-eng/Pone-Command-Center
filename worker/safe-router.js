@@ -1,5 +1,6 @@
 import core from './index.js';
 import { systemHealth } from './system-health.js';
+import { weeklyMarketing } from './weekly-marketing.js';
 
 const DASHBOARD_PATHS=new Set(['/','/spin-cycle-ai-marketing','/spin-cycle-ai-marketing/','/spin-cycle-ai-marketing.html']);
 const GROWTH_PATHS=new Set(['/owner','/owner/','/owner-hub','/owner-hub/','/growth-marketing','/growth-marketing/']);
@@ -31,6 +32,7 @@ export default {
   async fetch(request,env,ctx){
     var url=new URL(request.url);
     if(url.pathname==='/api/system-health')return systemHealth(core,request,env,ctx);
+    if(url.pathname==='/api/marketing-weekly')return weeklyMarketing(core,request,env,ctx);
     if(DASHBOARD_PATHS.has(url.pathname))return serveAsset(request,env,'/index.html',dashboardBlock());
     if(GROWTH_PATHS.has(url.pathname))return serveAsset(request,env,'/owner-hub.html','');
     if(CAMPAIGN_PATHS.has(url.pathname))return serveAsset(request,env,'/campaign-studio.html',campaignBlock());
