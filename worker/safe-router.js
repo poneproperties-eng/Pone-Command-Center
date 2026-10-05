@@ -21,22 +21,27 @@ function dashboardBlock(){
 function growthBlock(){return '<link rel="stylesheet" href="/growth-theme.css?v=2"><script src="/conversion-diagnosis.js?v=2" defer></script>';}
 function campaignBlock(){return nav('growth')+'<link rel="stylesheet" href="/campaign-theme.css?v=1"><script src="/campaign-approval.js?v=2" defer></script>';}
 
-async function transform(response,insert){
+const PWA_HEAD='<link rel="manifest" href="/manifest.json"><link rel="apple-touch-icon" href="/icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Spin Cycle">';
+const PWA_SCRIPT='<script id="spinCyclePwa">if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js",{scope:"/"}).catch(function(e){console.error("Spin Cycle service worker registration failed",e);});});}</script>';
+
+async function transform(response,insert,pwa){
   if(!response.ok)return response;var type=response.headers.get('content-type')||'';if(!type.includes('text/html'))return response;
-  var html=await response.text();html=html.includes('<body>')?html.replace('<body>','<body>'+insert):insert+html;
+  var html=await response.text();
+  if(pwa&&html.includes('</head>')&&!html.includes('rel="manifest"'))html=html.replace('</head>',PWA_HEAD+'</head>');
+  html=html.includes('<body>')?html.replace('<body>','<body>'+insert+(pwa?PWA_SCRIPT:'')):insert+(pwa?PWA_SCRIPT:'')+html;
   var headers=new Headers(response.headers);headers.delete('content-length');headers.set('cache-control','no-store');return new Response(html,{status:response.status,statusText:response.statusText,headers:headers});
 }
 
-async function serveAsset(request,env,path,insert){var response=await env.ASSETS.fetch(assetRequest(request,path));return insert?transform(response,insert):response;}
+async function serveAsset(request,env,path,insert,pwa){var response=await env.ASSETS.fetch(assetRequest(request,path));return insert?transform(response,insert,pwa):response;}
 
 export default {
   async fetch(request,env,ctx){
     var url=new URL(request.url);
     if(url.pathname==='/api/system-health')return systemHealth(core,request,env,ctx);
     if(url.pathname==='/api/marketing-weekly')return weeklyMarketing(core,request,env,ctx);
-    if(DASHBOARD_PATHS.has(url.pathname))return serveAsset(request,env,'/index.html',dashboardBlock());
-    if(GROWTH_PATHS.has(url.pathname))return serveAsset(request,env,'/owner-hub.html',growthBlock());
-    if(CAMPAIGN_PATHS.has(url.pathname))return serveAsset(request,env,'/campaign-studio.html',campaignBlock());
+    if(DASHBOARD_PATHS.has(url.pathname))return serveAsset(request,env,'/index.html',dashboardBlock(),true);
+    if(GROWTH_PATHS.has(url.pathname))return serveAsset(request,env,'/owner-hub.html',growthBlock(),false);
+    if(CAMPAIGN_PATHS.has(url.pathname))return serveAsset(request,env,'/campaign-studio.html',campaignBlock(),false);
     return core.fetch(request,env,ctx);
   }
 };
