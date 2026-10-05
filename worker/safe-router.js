@@ -19,7 +19,7 @@ function dashboardBlock(){
 }
 
 function growthBlock(){return '<link rel="stylesheet" href="/growth-theme.css?v=2"><script src="/conversion-diagnosis.js?v=2" defer></script>';}
-function campaignBlock(){return nav('growth')+'<link rel="stylesheet" href="/campaign-theme.css?v=1"><script src="/campaign-approval.js?v=2" defer></script><script src="/campaign-preview-master-style.js?v=1" defer></script>';}
+function campaignBlock(){return nav('growth')+'<link rel="stylesheet" href="/campaign-theme.css?v=1"><script src="/campaign-approval.js?v=2" defer></script><script src="/campaign-preview-master-style.js?v=2" defer></script>';}
 
 const PWA_HEAD='<link rel="manifest" href="/manifest.json"><link rel="apple-touch-icon" href="/icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="apple-mobile-web-app-title" content="Spin Cycle">';
 const PWA_SCRIPT='<script id="spinCyclePwa">if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js",{scope:"/"}).catch(function(e){console.error("Spin Cycle service worker registration failed",e);});});}</script>';
