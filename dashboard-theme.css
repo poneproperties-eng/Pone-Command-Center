@@ -38,7 +38,11 @@ body{background:#083a72!important;color:#fff!important}
 .entry,.goalbox{color:#fff!important}.save{background:#0866f5!important;border:1px solid #79aef0!important;box-shadow:none!important}.editCollection{border-color:#679dde!important;color:#fff!important;background:#0d5cb8!important}.deleteCollection{border-color:#d17e7e!important;color:#ffe7e7!important;background:#633434!important}.history{color:#e3edf8!important}.history div{border-top-color:#4f82c1!important}.historyAccordion summary,.weeklyHistoryToggle,.historyRow.collapsibleHistory{background:#0d5cb8!important;border-color:#5d95dc!important;color:#fff!important}.historyRow.collapsibleHistory .historyDetail{color:#dfebf8!important}
 
 .source{border-bottom-color:#4f82c1!important}.refreshAll{border-color:#679dde!important;color:#fff!important;background:#0d5cb8!important}.connBtn{background:#c93e3e!important;box-shadow:none!important;color:#fff!important}
-.connStatus.good,.good{background:#dff3e8!important;color:#146b43!important;border:1px solid #78c79a!important}.connStatus.watch,.watch{background:#fff2c9!important;color:#805300!important;border:1px solid #dcbf63!important}.connStatus.bad,.bad{background:#fbe2e2!important;color:#962b2b!important;border:1px solid #dc8f8f!important}
+
+/* Locked warning pills: bright fill + black text */
+.connStatus.good,.good{background:#39ff88!important;color:#000!important;border:2px solid #9dffc2!important;text-shadow:none!important;font-weight:950!important}
+.connStatus.watch,.watch{background:#fff200!important;color:#000!important;border:2px solid #fff79a!important;text-shadow:none!important;font-weight:950!important}
+.connStatus.bad,.bad{background:#ff3b30!important;color:#000!important;border:2px solid #ff9b96!important;text-shadow:none!important;font-weight:950!important}
 
 .chartBars{border-bottom-color:#5a8ed0!important}.chartBar{background:linear-gradient(180deg,#72a9f0,#0866f5)!important}.stackSS{background:linear-gradient(180deg,#72a9f0,#0866f5)!important}.stackWF{background:linear-gradient(180deg,#aa9ce5,#7c67c6)!important}.chartVal,.wfPart,.ssPart{font-weight:900!important}.chartVal,.chartLabel,.chartLegend{color:#e7f0fb!important}.weeklyChart{background:#0a4489!important}.chartBreakdown>div,.graphKpi{background:#0d5cb8!important}
 
@@ -47,9 +51,9 @@ body{background:#083a72!important;color:#fff!important}
 /* Live data pills: brighter and signal-coded without changing any decision logic */
 .decisionMetric{padding:8px 13px!important;border-width:2px!important;border-style:solid!important;font-weight:950!important;box-shadow:0 2px 8px rgba(0,0,0,.16)!important;color:#fff!important;text-shadow:0 1px 1px rgba(0,0,0,.10)!important}
 .decisionMetric.metricInfo{background:#1677ff!important;border-color:#8bc1ff!important;color:#fff!important}
-.decisionMetric.metricGood{background:#22c55e!important;border-color:#9af0b8!important;color:#052e16!important;text-shadow:none!important}
-.decisionMetric.metricWatch{background:#facc15!important;border-color:#fff2a6!important;color:#4a3500!important;text-shadow:none!important}
-.decisionMetric.metricBad{background:#ef4444!important;border-color:#ffb0b0!important;color:#fff!important}
+.decisionMetric.metricGood{background:#39ff88!important;border-color:#9dffc2!important;color:#000!important;text-shadow:none!important}
+.decisionMetric.metricWatch{background:#fff200!important;border-color:#fff79a!important;color:#000!important;text-shadow:none!important}
+.decisionMetric.metricBad{background:#ff3b30!important;border-color:#ff9b96!important;color:#000!important;text-shadow:none!important}
 
 .compDash{background:#0b4f9f!important;border:1px solid #538ed8!important;box-shadow:0 5px 14px rgba(0,0,0,.10)!important;color:#fff!important}.compDashHead p,.compDashCard p{color:#dbe8f7!important}.compDashCard{background:#0d5cb8!important;border-color:#5d95dc!important;border-top:3px solid #7eaff0!important}.compMini{background:#125db1!important;color:#fff!important;border:1px solid #679dde!important}.compMini.action{background:#23895b!important;color:#fff!important;border-color:#3db67b!important}
 
