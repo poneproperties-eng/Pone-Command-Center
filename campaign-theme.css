@@ -1,0 +1,117 @@
+:root{
+  --studio-bg:#083a72;
+  --studio-panel:#0b4f9f;
+  --studio-panel-2:#0d5cb8;
+  --studio-blue:#0866f5;
+  --studio-navy:#082f49;
+  --studio-border:#5d95dc;
+  --studio-border-strong:#8ab6f3;
+  --studio-text:#ffffff;
+  --studio-muted:#dbe8f7;
+}
+
+body{background:var(--studio-bg)!important;color:var(--studio-text)!important}
+.wrap{color:var(--studio-text)!important}
+
+/* Match the locked Dashboard / Growth & Marketing theme */
+.hero{background:linear-gradient(135deg,#0a4489 0%,#0866f5 60%,#2d7cf6 100%)!important;border:1px solid #5c97ed!important;color:#fff!important;box-shadow:0 8px 22px rgba(0,0,0,.14)!important}
+.hero p{color:#eaf2ff!important}.heroBadge{background:#082f49!important;color:#fff!important;border-color:#537b98!important}
+
+.spinCycleTabs{border-bottom:1px solid #4c80bf!important;padding-bottom:10px!important}
+.spinCycleTab{background:#0b4f9f!important;color:#fff!important;border-color:#5b95dc!important;box-shadow:none!important}
+.spinCycleTab.active{background:#0866f5!important;color:#fff!important;border-color:#8ab6f3!important}
+
+.sectionTitle h2,.card h3,.asset h4,.channelName,.field label{color:#fff!important}
+.sub,.small,.priceBox small,.kpi span{color:var(--studio-muted)!important}
+
+.card,.priceBox,.channelCard,.asset,.kpi,.modalBox,.platformRow{
+  background:var(--studio-panel)!important;
+  border-color:var(--studio-border)!important;
+  color:#fff!important;
+  box-shadow:0 5px 14px rgba(0,0,0,.10)!important;
+}
+.priceBox,.channelCard,.asset,.kpi,.platformRow{background:var(--studio-panel-2)!important}
+
+.field input,.field select,.field textarea,.priceBox input{
+  background:#0a4489!important;
+  color:#fff!important;
+  border:2px solid #679dde!important;
+}
+.field input::placeholder,.field textarea::placeholder{color:#c9d9eb!important}
+.field select option{background:#0a4489!important;color:#fff!important}
+.field input:focus,.field select:focus,.field textarea:focus,.priceBox input:focus{outline:3px solid rgba(138,182,243,.28)!important;border-color:#a9c8f5!important}
+
+.choice label{background:#0d5cb8!important;color:#fff!important;border-color:#679dde!important}
+.choice input:checked+label{background:#0866f5!important;color:#fff!important;border-color:#a9c8f5!important;box-shadow:0 0 0 2px rgba(169,200,245,.20)!important}
+
+/* Locked status colors: bright fill with black text */
+.status.connected,.connected,.notice.good,.approvedBanner{
+  background:#39ff88!important;
+  color:#000!important;
+  border:2px solid #9dffc2!important;
+  text-shadow:none!important;
+  font-weight:950!important;
+}
+.status.ready,.ready{
+  background:#fff200!important;
+  color:#000!important;
+  border:2px solid #fff79a!important;
+  text-shadow:none!important;
+  font-weight:950!important;
+}
+.notice.warn,.previewRequired{
+  background:#ff9f0a!important;
+  color:#000!important;
+  border:2px solid #ffd08a!important;
+  text-shadow:none!important;
+  font-weight:900!important;
+}
+.danger,.status.bad,.bad{
+  background:#ff3b30!important;
+  color:#000!important;
+  border:2px solid #ff9b96!important;
+  text-shadow:none!important;
+  font-weight:950!important;
+}
+
+.switch input{accent-color:#0866f5!important}
+
+.actionBar{background:rgba(8,47,73,.96)!important;border:2px solid #679dde!important;box-shadow:0 12px 35px rgba(0,0,0,.24)!important}
+.btn.primary,.primary{background:#0866f5!important;color:#fff!important}
+.btn.secondary,.secondary{background:#0d5cb8!important;color:#fff!important;border:1px solid #79aef0!important}
+.btn.success,.success{background:#39ff88!important;color:#000!important;border:2px solid #9dffc2!important}
+.btn.danger,.danger{background:#ff3b30!important;color:#000!important;border:2px solid #ff9b96!important}
+.btn:disabled{opacity:.50!important}
+
+.videoPreview{background:linear-gradient(160deg,#082f49,#0b4f9f)!important;border:2px solid #679dde!important}
+.ratio{background:rgba(255,255,255,.15)!important;border-color:rgba(255,255,255,.35)!important;color:#fff!important}
+.offer{background:#fff!important;color:#0754c5!important}
+
+.storyboard .scene{border-bottom-color:#4f82c1!important;color:#fff!important}
+.scene:before{background:#0866f5!important;color:#fff!important}
+.asset p{color:#e3edf8!important}
+
+.modal{background:rgba(3,23,43,.84)!important}
+.modalBox{border:2px solid #679dde!important}
+.close{background:#0d5cb8!important;color:#fff!important;border:1px solid #79aef0!important}
+
+/* Approval helper injected by campaign-approval.js */
+.approvalGuide{background:#0b4f9f!important;border-color:#679dde!important;color:#fff!important}
+.approvalStep{background:#0d5cb8!important;border-color:#5d95dc!important;color:#e3edf8!important}
+.approvalStep strong{color:#fff!important}
+.approvalBack{background:#0d5cb8!important;color:#fff!important}
+.approvalApprove{background:#39ff88!important;color:#000!important;border:2px solid #9dffc2!important}
+.approvalAdvertise{background:#0866f5!important;color:#fff!important}
+.approvalConnect{background:#fff200!important;color:#000!important;border:2px solid #fff79a!important}
+.approvalVisual{background:#0d5cb8!important;color:#fff!important;border:1px solid #79aef0!important}
+.platformAction.google{background:#39ff88!important;color:#000!important}
+.platformAction.meta{background:#fff200!important;color:#000!important}
+
+/* Visual preview shell only — canvases/ad artwork are untouched */
+#spinVisualPanel{background:#0b4f9f!important;border-color:#679dde!important;color:#fff!important}
+#spinVisualPanel h2,#spinVisualPanel h3,#spinVisualPanel b{color:#fff!important}
+#spinVisualPanel p,#spinVisualPanel .small{color:#dbe8f7!important}
+#spinVisualPanel canvas{box-shadow:0 5px 16px rgba(0,0,0,.20)!important}
+#spinVisualPanel button,#spinVisualPanel a{border-color:#79aef0!important}
+
+button,a{transition:background-color .12s ease,border-color .12s ease,box-shadow .12s ease!important}
