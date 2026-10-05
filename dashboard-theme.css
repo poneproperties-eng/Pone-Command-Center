@@ -1,17 +1,16 @@
 :root{
-  --bg:#0b2b46;
+  --bg:#083a72;
   --ink:#ffffff;
-  --muted:#d3e1ec;
-  --line:#4b7f9e;
-  --theme-navy:#0f4567;
-  --theme-navy-2:#155172;
-  --theme-navy-3:#1a6386;
-  --theme-blue:#1680b8;
-  --theme-cyan:#43bfd7;
-  --theme-panel:#164864;
-  --theme-panel-2:#1b5572;
-  --theme-border:#4d819d;
-  --theme-border-strong:#68b7cf;
+  --muted:#dbe8f7;
+  --line:#4f8fdc;
+  --theme-navy:#082f49;
+  --theme-navy-2:#0b3d5f;
+  --theme-blue:#0866f5;
+  --theme-blue-2:#0057df;
+  --theme-panel:#0b4f9f;
+  --theme-panel-2:#0d5cb8;
+  --theme-border:#4b8fe8;
+  --theme-border-strong:#79aef0;
   --theme-green:#16a34a;
   --theme-green-bg:#dff6e7;
   --theme-amber:#9a6700;
@@ -20,35 +19,38 @@
   --theme-red-bg:#fde2e1;
 }
 
-body{background:#0b2b46!important;color:#fff!important}
+body{background:#083a72!important;color:#fff!important}
 .wrap{color:#fff!important}
 
-.top{background:linear-gradient(135deg,#0b3d5d 0%,#156386 58%,#2c98b0 100%)!important;border:1px solid #42a6bf!important;box-shadow:0 8px 22px rgba(0,0,0,.18)!important}
-.top h1,.top p,.range{color:#fff!important}.top p{color:#e4f4fa!important}.range{background:rgba(255,255,255,.16)!important;border-color:rgba(255,255,255,.42)!important}.brandLogo{border:1px solid rgba(255,255,255,.70)!important}
+.top{background:linear-gradient(135deg,#0a4489 0%,#0866f5 60%,#2d7cf6 100%)!important;border:1px solid #5c97ed!important;box-shadow:0 8px 22px rgba(0,0,0,.16)!important}
+.top h1,.top p,.range{color:#fff!important}.top p{color:#eaf2ff!important}.range{background:rgba(255,255,255,.16)!important;border-color:rgba(255,255,255,.42)!important}.brandLogo{border:1px solid rgba(255,255,255,.72)!important}
 
-.spinCycleTabs{border-bottom:1px solid #4b7690!important;padding-bottom:10px!important}.spinCycleTab{background:#164864!important;color:#fff!important;border-color:#5790ac!important;box-shadow:none!important}.spinCycleTab.active{background:#1680b8!important;color:#fff!important;border-color:#73c9dd!important}
+.spinCycleTabs{border-bottom:1px solid #4c80bf!important;padding-bottom:10px!important}.spinCycleTab{background:#0b4f9f!important;color:#fff!important;border-color:#5b95dc!important;box-shadow:none!important}.spinCycleTab.active{background:#0866f5!important;color:#fff!important;border-color:#8ab6f3!important}
 
-.simpleSelect,.period,.field input,.field select{border-color:#5a8dab!important;background:#164864!important;color:#fff!important}.simpleSelect option,.field select option{background:#164864!important;color:#fff!important}.simpleSelect:focus,.field input:focus,.field select:focus{outline:3px solid rgba(67,191,215,.18)!important;border-color:#74c9dc!important}.period.active{background:#1680b8!important;color:#fff!important;border-color:#74c9dc!important}.viewToggle{background:#164864!important;border-color:#568aa7!important}.viewToggle button{color:#e6f3f8!important}.viewToggle button.active{background:#1680b8!important;color:#fff!important}
+.simpleSelect,.period,.field input,.field select{border-color:#6399dd!important;background:#0b4f9f!important;color:#fff!important}.simpleSelect option,.field select option{background:#0b4f9f!important;color:#fff!important}.simpleSelect:focus,.field input:focus,.field select:focus{outline:3px solid rgba(8,102,245,.20)!important;border-color:#9bc0f4!important}.period.active{background:#0866f5!important;color:#fff!important;border-color:#9bc0f4!important}.viewToggle{background:#0b4f9f!important;border-color:#6097dc!important}.viewToggle button{color:#edf4ff!important}.viewToggle button.active{background:#0866f5!important;color:#fff!important}
 
-.kpi,.card,.insights,.weeklyChart,.historyAccordion{background:#164864!important;border-color:#4f829f!important;box-shadow:0 5px 14px rgba(0,0,0,.12)!important;color:#fff!important}.kpi{border-top:3px solid #62c5da!important}.kpi:nth-child(2){border-top-color:#68add8!important}.kpi:nth-child(3){border-top-color:#8aa8dc!important}.kpi:nth-child(4){border-top-color:#56c8a3!important}
+.kpi,.card,.insights,.weeklyChart,.historyAccordion{background:#0b4f9f!important;border-color:#538ed8!important;box-shadow:0 5px 14px rgba(0,0,0,.11)!important;color:#fff!important}.kpi{border-top:3px solid #7cb0f2!important}.kpi:nth-child(2){border-top-color:#69a1ec!important}.kpi:nth-child(3){border-top-color:#8baef0!important}.kpi:nth-child(4){border-top-color:#56c8a3!important}
 
-.label,.chartTitle,.field label,.serviceHead h3,.headline h2,.section h2,.compDashHead h2,.compDashCard b{color:#fff!important}.value,.metric b,.rstat b,.graphKpi b,.chartBreakdown b{color:#fff!important}.subtitle,.muted,.live,.campaign,.sourceTime,.metric small,.rstat small,.graphKpi small,.chartBreakdown small,.goal{color:#d3e1ec!important}
+.label,.chartTitle,.field label,.serviceHead h3,.headline h2,.section h2,.compDashHead h2,.compDashCard b{color:#fff!important}.value,.metric b,.rstat b,.graphKpi b,.chartBreakdown b{color:#fff!important}.subtitle,.muted,.live,.campaign,.sourceTime,.metric small,.rstat small,.graphKpi small,.chartBreakdown small,.goal{color:#dbe8f7!important}
 
-.icon{background:#1d5874!important;color:#a4ebf7!important;border:1px solid #5b90aa!important}.trend,.metric,.rstat,.graphKpi,.chartBreakdown>div,.campaignInfo{background:#1b5572!important;border:1px solid #5085a2!important;color:#e2edf4!important}
+.icon{background:#125db1!important;color:#e8f2ff!important;border:1px solid #6ea3e6!important}.trend,.metric,.rstat,.graphKpi,.chartBreakdown>div,.campaignInfo{background:#0d5cb8!important;border:1px solid #5f98df!important;color:#edf5ff!important}
 
-.entry,.goalbox{color:#fff!important}.save{background:#1680b8!important;border:1px solid #68b7cf!important;box-shadow:none!important}.editCollection{border-color:#5b91ac!important;color:#fff!important;background:#1b5572!important}.deleteCollection{border-color:#d17e7e!important;color:#ffe7e7!important;background:#633434!important}.history{color:#dce8ef!important}.history div{border-top-color:#46728c!important}.historyAccordion summary,.weeklyHistoryToggle,.historyRow.collapsibleHistory{background:#1b5572!important;border-color:#4f839f!important;color:#fff!important}.historyRow.collapsibleHistory .historyDetail{color:#d5e4ed!important}
+.entry,.goalbox{color:#fff!important}.save{background:#0866f5!important;border:1px solid #79aef0!important;box-shadow:none!important}.editCollection{border-color:#679dde!important;color:#fff!important;background:#0d5cb8!important}.deleteCollection{border-color:#d17e7e!important;color:#ffe7e7!important;background:#633434!important}.history{color:#e3edf8!important}.history div{border-top-color:#4f82c1!important}.historyAccordion summary,.weeklyHistoryToggle,.historyRow.collapsibleHistory{background:#0d5cb8!important;border-color:#5d95dc!important;color:#fff!important}.historyRow.collapsibleHistory .historyDetail{color:#dfebf8!important}
 
-.source{border-bottom-color:#46728c!important}.refreshAll{border-color:#5b91ac!important;color:#fff!important;background:#1b5572!important}.connBtn{background:#c93e3e!important;box-shadow:none!important;color:#fff!important}
+.source{border-bottom-color:#4f82c1!important}.refreshAll{border-color:#679dde!important;color:#fff!important;background:#0d5cb8!important}.connBtn{background:#c93e3e!important;box-shadow:none!important;color:#fff!important}
 .connStatus.good,.good{background:#dff3e8!important;color:#146b43!important;border:1px solid #78c79a!important}.connStatus.watch,.watch{background:#fff2c9!important;color:#805300!important;border:1px solid #dcbf63!important}.connStatus.bad,.bad{background:#fbe2e2!important;color:#962b2b!important;border:1px solid #dc8f8f!important}
 
-.chartBars{border-bottom-color:#54839e!important}.chartBar{background:linear-gradient(180deg,#4fc8de,#1680b8)!important}.stackSS{background:linear-gradient(180deg,#4fc8de,#1680b8)!important}.stackWF{background:linear-gradient(180deg,#aa9ce5,#7c67c6)!important}.chartVal,.wfPart,.ssPart{font-weight:900!important}.chartVal,.chartLabel,.chartLegend{color:#e0ecf3!important}.weeklyChart{background:#0f4567!important}.chartBreakdown>div,.graphKpi{background:#1b5572!important}
+.chartBars{border-bottom-color:#5a8ed0!important}.chartBar{background:linear-gradient(180deg,#72a9f0,#0866f5)!important}.stackSS{background:linear-gradient(180deg,#72a9f0,#0866f5)!important}.stackWF{background:linear-gradient(180deg,#aa9ce5,#7c67c6)!important}.chartVal,.wfPart,.ssPart{font-weight:900!important}.chartVal,.chartLabel,.chartLegend{color:#e7f0fb!important}.weeklyChart{background:#0a4489!important}.chartBreakdown>div,.graphKpi{background:#0d5cb8!important}
 
-.ownerDecision{background:linear-gradient(135deg,#104666 0%,#166486 100%)!important;border:2px solid #39a7c3!important;box-shadow:0 8px 22px rgba(0,0,0,.16)!important}.decisionEyebrow,.decisionSource{color:#c2edf6!important}.decisionTitle{color:#fff!important}.decisionReason,.decisionReminder{color:#f3fbfd!important}.decisionMetric{background:rgba(255,255,255,.14)!important;border-color:rgba(255,255,255,.32)!important;color:#fff!important}.decisionReminder{background:rgba(255,255,255,.11)!important;border:1px solid rgba(255,255,255,.20)!important}.decisionBtn{background:#fff!important;color:#126b99!important;border:1px solid #d9eef4!important;box-shadow:none!important}
+.ownerDecision{background:linear-gradient(135deg,#0a4489 0%,#0866f5 100%)!important;border:2px solid #6ea6ed!important;box-shadow:0 8px 22px rgba(0,0,0,.14)!important}.decisionEyebrow,.decisionSource{color:#d5e8ff!important}.decisionTitle{color:#fff!important}.decisionReason,.decisionReminder{color:#f5f9ff!important}.decisionMetric{background:rgba(255,255,255,.14)!important;border-color:rgba(255,255,255,.32)!important;color:#fff!important}.decisionReminder{background:rgba(255,255,255,.11)!important;border:1px solid rgba(255,255,255,.20)!important}.decisionBtn{background:#fff!important;color:#0754c5!important;border:1px solid #dfeaff!important;box-shadow:none!important}
 
-.compDash{background:#164864!important;border:1px solid #4f829f!important;box-shadow:0 5px 14px rgba(0,0,0,.11)!important;color:#fff!important}.compDashHead p,.compDashCard p{color:#d4e3ec!important}.compDashCard{background:#1b5572!important;border-color:#4f839f!important;border-top:3px solid #6fc1d5!important}.compMini{background:#1d5874!important;color:#fff!important;border:1px solid #5a90aa!important}.compMini.action{background:#23895b!important;color:#fff!important;border-color:#3db67b!important}
+.compDash{background:#0b4f9f!important;border:1px solid #538ed8!important;box-shadow:0 5px 14px rgba(0,0,0,.10)!important;color:#fff!important}.compDashHead p,.compDashCard p{color:#dbe8f7!important}.compDashCard{background:#0d5cb8!important;border-color:#5d95dc!important;border-top:3px solid #7eaff0!important}.compMini{background:#125db1!important;color:#fff!important;border:1px solid #679dde!important}.compMini.action{background:#23895b!important;color:#fff!important;border-color:#3db67b!important}
 
-.insights{background:#164864!important;border-color:#4f829f!important}.insightlist{color:#dce8ef!important}.bench{background:#1b5572!important;color:#d8f7fb!important;border:1px solid #5a90aa!important}.err{background:#6a3434!important;color:#ffeaea!important;border:1px solid #c37070!important}.sync{color:#9ae8bb!important}
+.insights{background:#0b4f9f!important;border-color:#538ed8!important}.insightlist{color:#e3edf8!important}.bench{background:#0d5cb8!important;color:#edf5ff!important;border:1px solid #679dde!important}.err{background:#6a3434!important;color:#ffeaea!important;border:1px solid #c37070!important}.sync{color:#9ae8bb!important}
 
-.status,.headline,.section,.connectionsHead,.boxTop{color:#fff!important}.dot{box-shadow:0 0 0 2px rgba(255,255,255,.12)!important}.section{border-top:1px solid #46728c!important;padding-top:14px!important}.section:first-of-type{border-top-color:transparent!important}
+.status,.headline,.section,.connectionsHead,.boxTop{color:#fff!important}.dot{box-shadow:0 0 0 2px rgba(255,255,255,.12)!important}.section{border-top:1px solid #4f82c1!important;padding-top:14px!important}.section:first-of-type{border-top-color:transparent!important}
+
+/* Install App switches to navy while the former install blue becomes the app theme */
+.installApp{background:linear-gradient(135deg,#082f49,#0b3d5f)!important;border-color:#315f7d!important;color:#fff!important;box-shadow:0 8px 22px rgba(0,0,0,.18)!important}.installApp .installCopy small{color:#dbeafe!important}.installApp:hover{filter:brightness(1.08)!important}
 
 button,a{transition:background-color .12s ease,border-color .12s ease,box-shadow .12s ease!important}
