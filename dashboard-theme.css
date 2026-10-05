@@ -64,4 +64,28 @@ body{background:#083a72!important;color:#fff!important}
 /* Install App stays navy while the former install blue remains the app theme */
 .installApp{background:linear-gradient(135deg,#082f49,#0b3d5f)!important;border-color:#315f7d!important;color:#fff!important;box-shadow:0 8px 22px rgba(0,0,0,.18)!important}.installApp .installCopy small{color:#dbeafe!important}.installApp:hover{filter:brightness(1.08)!important}
 
+/* Locked collection summary styling: green background + black text only */
+#collections-summary{background:#39ff88!important;color:#000!important;border:2px solid #9dffc2!important;border-radius:14px!important;padding:14px!important}
+#collections-summary .entry,#collections-summary .goalbox,#collections-summary .field label,#collections-summary .sync,#collections-summary .history,#collections-summary .history *{color:#000!important}
+#collections-summary .field input,#collections-summary .field select{background:#eafff1!important;color:#000!important;border:2px solid #168a48!important}
+#collections-summary .field input::placeholder{color:#52665a!important}
+#collections-summary .field select option{background:#eafff1!important;color:#000!important}
+#collections-summary .save{background:#0cab50!important;color:#000!important;border:2px solid #075e2d!important;font-weight:950!important}
+#collections-summary .revenueDash .rstat{background:#87ffb4!important;color:#000!important;border:2px solid #18a856!important}
+#collections-summary .revenueDash .rstat b,#collections-summary .revenueDash .rstat span,#collections-summary .revenueDash .rstat small{color:#000!important}
+#collections-summary .weeklyHistoryToggle,#collections-summary .historyAccordion,#collections-summary .historyAccordion summary,#collections-summary .historyRow.collapsibleHistory{background:#a8ffc8!important;color:#000!important;border-color:#168a48!important}
+#collections-summary .editCollection{background:#eafff1!important;color:#000!important;border-color:#168a48!important}
+#collections-summary .deleteCollection{color:#000!important}
+
+/* Keep Week Ending aligned with the other entry fields; helper range stays underneath */
+#collections-summary .entry{align-items:end!important;padding-bottom:24px!important}
+#collectionDate{display:block}
+#collectionDateLabel{white-space:nowrap}
+#weekRangeHint{position:absolute!important;left:0!important;top:100%!important;margin-top:5px!important;color:#000!important;font-weight:700!important;white-space:nowrap!important}
+#collectionDate,#weekRangeHint{box-sizing:border-box}
+#collectionDateLabel+ #collectionDate{margin:0!important}
+#collectionDate.parentField{}
+#collections-summary .entry .field:has(#collectionDate){position:relative!important}
+@supports not selector(:has(*)){#weekRangeHint{position:static!important;margin-top:5px!important}}
+
 button,a{transition:background-color .12s ease,border-color .12s ease,box-shadow .12s ease!important}
