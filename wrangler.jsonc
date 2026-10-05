@@ -1,4 +1,5 @@
 {
+  // deployment refresh: 2026-10-05 — no runtime setting change
   "name": "spin-cycle-ai-marketing",
   "main": "worker/safe-router.js",
   "compatibility_date": "2026-09-08",
