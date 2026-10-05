@@ -45,12 +45,12 @@
 
     var z=vertical?{
       logo:[160,50,760,240],banner:[85,320,910,390],serviceY:785,subY:845,
-      towels:[90,1040,255,245],bag:[790,1015,200,285],offer:[350,1055,380,105],
-      cta:[170,1370,740,145],trustY:1575,bar:[65,1645,950,155],urlY:1860
+      offer:[210,970,660,110],towels:[95,1135,260,250],bag:[785,1110,205,300],
+      cta:[170,1395,740,145],trustY:1585,bar:[65,1650,950,155],urlY:1860
     }:{
       logo:[185,34,710,175],banner:[70,215,940,290],serviceY:575,subY:622,
-      towels:[55,690,190,150],bag:[850,675,145,180],offer:[315,700,450,76],
-      cta:[215,815,650,96],trustY:945,bar:[42,980,996,72],urlY:1070
+      offer:[200,655,680,78],towels:[55,750,175,120],bag:[855,730,145,165],
+      cta:[230,850,620,90],trustY:965,bar:[42,992,996,64],urlY:1070
     };
 
     if(logo)drawLogo(ctx,logo,z.logo[0],z.logo[1],z.logo[2],z.logo[3]);
@@ -62,19 +62,19 @@
     ctx.fillStyle='#073baa';ctx.textAlign='center';ctx.font='950 '+(vertical?60:44)+'px system-ui,Segoe UI,Arial';ctx.fillText(serviceTitle(),w/2,z.serviceY);
     ctx.fillStyle='#16358c';var sf=fitLines(ctx,serviceSub(),vertical?790:770,2,vertical?31:24,vertical?24:18,800);ctx.font='800 '+sf.size+'px system-ui,Segoe UI,Arial';drawCenteredLines(ctx,sf.lines,w/2,z.subY,sf.size*1.22);
 
+    var ox=z.offer[0],oy=z.offer[1],ow=z.offer[2],oh=z.offer[3],offer=offerText(p);rounded(ctx,ox,oy,ow,oh,30,'#eefaff','#10bff3',4);ctx.fillStyle='#0749b4';var of=fitLines(ctx,offer,ow-54,2,vertical?30:23,vertical?21:16,900);ctx.font='900 '+of.size+'px system-ui,Segoe UI,Arial';var ol=of.size*1.12,ot=(of.lines.length-1)*ol;drawCenteredLines(ctx,of.lines,w/2,oy+oh/2-ot/2+of.size*.34,ol);
+
     drawTowels(ctx,z.towels[0],z.towels[1],z.towels[2],z.towels[3]);
     drawBag(ctx,z.bag[0],z.bag[1],z.bag[2],z.bag[3]);
-
-    var ox=z.offer[0],oy=z.offer[1],ow=z.offer[2],oh=z.offer[3],offer=offerText(p);rounded(ctx,ox,oy,ow,oh,30,'#eefaff','#10bff3',4);ctx.fillStyle='#0749b4';var of=fitLines(ctx,offer,ow-42,2,vertical?29:22,vertical?20:16,900);ctx.font='900 '+of.size+'px system-ui,Segoe UI,Arial';var ol=of.size*1.12,ot=(of.lines.length-1)*ol;drawCenteredLines(ctx,of.lines,w/2,oy+oh/2-ot/2+of.size*.34,ol);
 
     var cx=z.cta[0],cy=z.cta[1],cw=z.cta[2],ch=z.cta[3],cg=ctx.createLinearGradient(cx,cy,cx+cw,cy+ch);cg.addColorStop(0,'#38d1f5');cg.addColorStop(1,'#078ce8');rounded(ctx,cx,cy,cw,ch,38,cg,'#74e7ff',5);ctx.fillStyle='#fff';var cf=fitLines(ctx,String(ctaText(p)),cw-70,2,vertical?48:36,vertical?33:27,950);ctx.font='950 '+cf.size+'px system-ui,Segoe UI,Arial';var cl=cf.size*1.08,ct=(cf.lines.length-1)*cl;drawCenteredLines(ctx,cf.lines,w/2,cy+ch/2-ct/2+cf.size*.34,cl);
 
     ctx.fillStyle='#083eab';ctx.textAlign='center';ctx.font='900 '+(vertical?30:22)+'px system-ui,Segoe UI,Arial';ctx.fillText('★★★★★  '+REVIEWS,w/2,z.trustY);
 
     var barX=z.bar[0],barY=z.bar[1],barW=z.bar[2],barH=z.bar[3];rounded(ctx,barX,barY,barW,barH,34,'rgba(255,255,255,.98)','rgba(4,112,227,.18)',3);ctx.textAlign='left';var mid=barX+barW*.58;
-    drawPin(ctx,barX+(vertical?62:42),barY+barH/2,vertical?32:23);ctx.fillStyle='#10339b';ctx.font='900 '+(vertical?29:19)+'px system-ui,Segoe UI,Arial';ctx.fillText(ADDRESS,barX+(vertical?112:78),barY+barH*.60);
-    ctx.strokeStyle='#47a9ee';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(mid,barY+18);ctx.lineTo(mid,barY+barH-18);ctx.stroke();
-    drawPhone(ctx,mid+(vertical?62:42),barY+barH/2,vertical?32:23);ctx.fillStyle='#10339b';ctx.font='950 '+(vertical?36:24)+'px system-ui,Segoe UI,Arial';ctx.fillText(PHONE,mid+(vertical?112:78),barY+barH*.61);
+    drawPin(ctx,barX+(vertical?62:40),barY+barH/2,vertical?32:21);ctx.fillStyle='#10339b';ctx.font='900 '+(vertical?29:18)+'px system-ui,Segoe UI,Arial';ctx.fillText(ADDRESS,barX+(vertical?112:75),barY+barH*.60);
+    ctx.strokeStyle='#47a9ee';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(mid,barY+14);ctx.lineTo(mid,barY+barH-14);ctx.stroke();
+    drawPhone(ctx,mid+(vertical?62:40),barY+barH/2,vertical?32:21);ctx.fillStyle='#10339b';ctx.font='950 '+(vertical?36:23)+'px system-ui,Segoe UI,Arial';ctx.fillText(PHONE,mid+(vertical?112:75),barY+barH*.61);
 
     ctx.textAlign='center';ctx.fillStyle='#3154a0';ctx.font='800 '+(vertical?19:13)+'px system-ui,Segoe UI,Arial';ctx.fillText(destination().replace('https://',''),w/2,z.urlY);ctx.textAlign='left';
   }
