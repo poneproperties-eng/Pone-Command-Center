@@ -2,8 +2,6 @@
   'use strict';
 
   var LOGO='/icon-192.png';
-  var PHONE='614.570.9603';
-  var ADDRESS='60 Rosehill Road, Reynoldsburg, Ohio 43068';
   var timer=null;
 
   function loadImage(src){
@@ -79,31 +77,8 @@
     var logoW=vertical?260:230;
     var logoH=vertical?180:150;
 
-    // Correct logo only: repaint the existing white logo box and fill it with the real header logo.
+    // Logo-only patch. Reviews, phone, address and all other ad content are rendered once by the base preview renderer.
     drawLogo(ctx,logo,pad,pad,logoW,logoH);
-
-    // Make the contact area unmistakably readable without changing the rest of the ad.
-    if(vertical){
-      var proofY=1375,proofH=225;
-      roundedRect(ctx,pad,proofY,canvas.width-pad*2,proofH,22,'rgba(255,255,255,.18)');
-      ctx.fillStyle='#ffffff';
-      ctx.font='900 38px system-ui,Segoe UI,Arial';
-      ctx.fillText('★★★★★  Nearly 300 5-star reviews',pad+26,proofY+58);
-      ctx.font='950 48px system-ui,Segoe UI,Arial';
-      ctx.fillText(PHONE,pad+26,proofY+120);
-      ctx.font='800 28px system-ui,Segoe UI,Arial';
-      ctx.fillText(ADDRESS,pad+26,proofY+174);
-    }else{
-      var proofY2=786,proofH2=132;
-      roundedRect(ctx,pad,proofY2,canvas.width-pad*2,proofH2,22,'rgba(255,255,255,.18)');
-      ctx.fillStyle='#ffffff';
-      ctx.font='900 28px system-ui,Segoe UI,Arial';
-      ctx.fillText('★★★★★  Nearly 300 5-star reviews',pad+24,proofY2+40);
-      ctx.font='950 36px system-ui,Segoe UI,Arial';
-      ctx.fillText(PHONE,pad+24,proofY2+82);
-      ctx.font='800 20px system-ui,Segoe UI,Arial';
-      ctx.fillText(ADDRESS,pad+24,proofY2+116);
-    }
   }
 
   async function patchAll(){
