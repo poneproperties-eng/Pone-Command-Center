@@ -33,6 +33,34 @@
     return s;
   }
 
+  function metricClass(text){
+    const x=String(text||'').toLowerCase();
+    const numMatch=x.match(/([+-]?\d+(?:\.\d+)?)%/);
+    const pct=numMatch?Number(numMatch[1]):null;
+    if(x.includes('completed w&f trend')||x.includes('completed total revenue trend')){
+      if(pct!==null&&pct>=10)return 'metricGood';
+      if(pct!==null&&pct<=-15)return 'metricBad';
+      return 'metricWatch';
+    }
+    if(x.includes('current partial w&f change'))return 'metricWatch';
+    if(x.includes('completed comparable weeks')){
+      const n=Number((x.match(/(\d+)$/)||[])[1]||0);
+      return n>=2?'metricGood':'metricWatch';
+    }
+    if(x.includes('internal weekly history')){
+      const n=Number((x.match(/history\s+(\d+)/)||[])[1]||0);
+      return n>=2?'metricGood':'metricWatch';
+    }
+    if(x.includes('enabled campaign'))return 'metricGood';
+    if(x.includes('google tracked actions')){
+      const n=Number((x.match(/7d\s+([\d.]+)/)||[])[1]||0);
+      return n>0?'metricGood':'metricBad';
+    }
+    if(x.includes('current partial w&f')||x.includes('prior recorded w&f'))return 'metricWatch';
+    if(x.includes('spend pace'))return 'metricInfo';
+    return 'metricInfo';
+  }
+
   function setDecision(title,reason,reminder,metrics,href,label,passive){
     const t=document.getElementById('decisionTitle');
     const r=document.getElementById('decisionReason');
@@ -45,7 +73,7 @@
     if(t){t.textContent=title;t.classList.remove('decisionLoading');}
     if(r)r.textContent=reason;
     if(rm)rm.textContent=reminder+'  This recommendation refreshes automatically from your live Dashboard data.';
-    if(m){m.innerHTML='';(metrics||[]).forEach(text=>{const n=document.createElement('span');n.className='decisionMetric';n.textContent=text;m.appendChild(n);});}
+    if(m){m.innerHTML='';(metrics||[]).forEach(text=>{const n=document.createElement('span');n.className='decisionMetric '+metricClass(text);n.textContent=text;m.appendChild(n);});}
     if(b){
       b.textContent=label||'GOOD FOR NOW';
       b.onclick=null;
