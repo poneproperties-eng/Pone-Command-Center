@@ -6,6 +6,7 @@
   var ADDRESS='60 Rosehill Rd, Reynoldsburg, OH 43068';
   var REVIEWS='Nearly 300 5-star reviews';
   var timer=null;
+  var applying=false;
 
   function pkg(){try{return window.packageData||packageData||null;}catch(e){return null;}}
   function goal(){var el=document.getElementById('goal');return el?el.value:'both';}
@@ -53,11 +54,7 @@
     var serviceY=vertical?790:565;ctx.fillStyle='#073baa';ctx.font='950 '+(vertical?62:45)+'px system-ui,Segoe UI,Arial';ctx.fillText(serviceTitle(),w/2,serviceY);
     ctx.font='800 '+(vertical?32:25)+'px system-ui,Segoe UI,Arial';ctx.fillStyle='#16358c';var sub=fitLines(ctx,serviceSub(),vertical?800:760,2,vertical?32:25,vertical?25:19,800);drawCenteredLines(ctx,sub.lines,w/2,serviceY+(vertical?62:47),(vertical?42:32));
 
-    if(vertical){
-      drawTowels(ctx,90,1010,270,310);drawBag(ctx,765,1000,225,325);
-    }else{
-      drawTowels(ctx,48,690,220,220);drawBag(ctx,820,682,180,238);
-    }
+    if(vertical){drawTowels(ctx,90,1010,270,310);drawBag(ctx,765,1000,225,325);}else{drawTowels(ctx,48,690,220,220);drawBag(ctx,820,682,180,238);}
 
     var offer=offerText(p);var offerW=vertical?560:520,offerH=vertical?105:78,offerX=(w-offerW)/2,offerY=vertical?1030:705;
     rounded(ctx,offerX,offerY,offerW,offerH,32,'#eefaff','#10bff3',4);ctx.fillStyle='#0749b4';var of=fitLines(ctx,offer,offerW-48,2,vertical?31:24,vertical?22:17,900);ctx.font='900 '+of.size+'px system-ui,Segoe UI,Arial';drawCenteredLines(ctx,of.lines,w/2,offerY+offerH/2-(of.lines.length-1)*(of.size*1.12)/2+of.size*.34,of.size*1.12);
@@ -67,8 +64,7 @@
     var trustY=vertical?1550:944;ctx.fillStyle='#083eab';ctx.font='900 '+(vertical?30:22)+'px system-ui,Segoe UI,Arial';ctx.fillText('★★★★★  '+REVIEWS,w/2,trustY);
 
     var barX=vertical?62:42,barY=vertical?1640:975,barW=w-barX*2,barH=vertical?150:78;rounded(ctx,barX,barY,barW,barH,34,'rgba(255,255,255,.97)','rgba(4,112,227,.18)',3);
-    ctx.textAlign='left';
-    var mid=barX+barW*.58;
+    ctx.textAlign='left';var mid=barX+barW*.58;
     drawPin(ctx,barX+(vertical?62:42),barY+barH/2,vertical?32:23);ctx.fillStyle='#10339b';ctx.font='900 '+(vertical?29:19)+'px system-ui,Segoe UI,Arial';ctx.fillText(ADDRESS,barX+(vertical?112:78),barY+barH*.60);
     ctx.strokeStyle='#47a9ee';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(mid,barY+18);ctx.lineTo(mid,barY+barH-18);ctx.stroke();
     drawPhone(ctx,mid+(vertical?62:42),barY+barH/2,vertical?32:23);ctx.fillStyle='#10339b';ctx.font='950 '+(vertical?36:24)+'px system-ui,Segoe UI,Arial';ctx.fillText(PHONE,mid+(vertical?112:78),barY+barH*.61);
@@ -76,8 +72,23 @@
     ctx.textAlign='center';ctx.fillStyle='#3154a0';ctx.font='800 '+(vertical?19:13)+'px system-ui,Segoe UI,Arial';ctx.fillText(destination().replace('https://',''),w/2,vertical?1855:1068);ctx.textAlign='left';
   }
 
-  async function apply(){if(window.spinCycleVisualReady!==true)return;var p=pkg(),panel=document.getElementById('spinVisualPanel');if(!p||!panel)return;var canvases=[].slice.call(panel.querySelectorAll('canvas'));if(!canvases.length)return;var signature=[goal(),p.hook,p.offer,p.cta,canvases.length,'v2'].join('|');try{var logo=await loadImage(LOGO);for(var i=0;i<canvases.length;i++){if(canvases[i].dataset.masterStyle===signature+'|'+i)continue;await drawAd(canvases[i],p,i,canvases[i].height>canvases[i].width,logo);canvases[i].dataset.masterStyle=signature+'|'+i;}}catch(e){console.error('Spin Cycle master ad style failed',e);}}
-  function schedule(){clearTimeout(timer);timer=setTimeout(function(){apply();},260);}
-  function start(){schedule();if(window.MutationObserver)new MutationObserver(schedule).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});['generate','regenerate'].forEach(function(id){var b=document.getElementById(id);if(b)b.addEventListener('click',function(){setTimeout(schedule,650);});});setInterval(function(){if(window.spinCycleVisualReady===true)schedule();},1200);}
+  async function apply(){
+    if(applying||window.spinCycleVisualReady!==true)return;
+    var p=pkg(),panel=document.getElementById('spinVisualPanel');if(!p||!panel)return;
+    var canvases=[].slice.call(panel.querySelectorAll('canvas'));if(!canvases.length)return;
+    applying=true;
+    try{
+      var logo=await loadImage(LOGO);
+      for(var i=0;i<canvases.length;i++)await drawAd(canvases[i],p,i,canvases[i].height>canvases[i].width,logo);
+    }catch(e){console.error('Spin Cycle master ad style failed',e);}finally{applying=false;}
+  }
+
+  function schedule(delay){clearTimeout(timer);timer=setTimeout(function(){apply();},delay==null?320:delay);}
+  function start(){
+    schedule(500);
+    if(window.MutationObserver)new MutationObserver(function(){schedule(450);}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
+    ['generate','regenerate'].forEach(function(id){var b=document.getElementById(id);if(b)b.addEventListener('click',function(){schedule(900);setTimeout(function(){schedule(0);},1700);});});
+    setInterval(function(){if(window.spinCycleVisualReady===true)apply();},1600);
+  }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();
