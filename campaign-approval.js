@@ -66,7 +66,7 @@
     addStyle();
     loadScript('/brand-context.js?v=3','spinBrandContextScript',function(){
       loadScript('/campaign-visual-preview.js?v=2','spinVisualPreviewScript',function(){
-        loadScript('/campaign-preview-brand-fix.js?v=2','spinPreviewBrandFixScript');
+        loadScript('/campaign-preview-brand-fix.js?v=3','spinPreviewBrandFixScript');
       });
     });
     var preview=document.getElementById('preview'),advertise=document.getElementById('advertise');
