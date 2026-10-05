@@ -42,7 +42,14 @@ body{background:#083a72!important;color:#fff!important}
 
 .chartBars{border-bottom-color:#5a8ed0!important}.chartBar{background:linear-gradient(180deg,#72a9f0,#0866f5)!important}.stackSS{background:linear-gradient(180deg,#72a9f0,#0866f5)!important}.stackWF{background:linear-gradient(180deg,#aa9ce5,#7c67c6)!important}.chartVal,.wfPart,.ssPart{font-weight:900!important}.chartVal,.chartLabel,.chartLegend{color:#e7f0fb!important}.weeklyChart{background:#0a4489!important}.chartBreakdown>div,.graphKpi{background:#0d5cb8!important}
 
-.ownerDecision{background:linear-gradient(135deg,#0a4489 0%,#0866f5 100%)!important;border:2px solid #6ea6ed!important;box-shadow:0 8px 22px rgba(0,0,0,.14)!important}.decisionEyebrow,.decisionSource{color:#d5e8ff!important}.decisionTitle{color:#fff!important}.decisionReason,.decisionReminder{color:#f5f9ff!important}.decisionMetric{background:rgba(255,255,255,.14)!important;border-color:rgba(255,255,255,.32)!important;color:#fff!important}.decisionReminder{background:rgba(255,255,255,.11)!important;border:1px solid rgba(255,255,255,.20)!important}.decisionBtn{background:#fff!important;color:#0754c5!important;border:1px solid #dfeaff!important;box-shadow:none!important}
+.ownerDecision{background:linear-gradient(135deg,#0a4489 0%,#0866f5 100%)!important;border:2px solid #6ea6ed!important;box-shadow:0 8px 22px rgba(0,0,0,.14)!important}.decisionEyebrow,.decisionSource{color:#d5e8ff!important}.decisionTitle{color:#fff!important}.decisionReason,.decisionReminder{color:#f5f9ff!important}.decisionReminder{background:rgba(255,255,255,.11)!important;border:1px solid rgba(255,255,255,.20)!important}.decisionBtn{background:#fff!important;color:#0754c5!important;border:1px solid #dfeaff!important;box-shadow:none!important}
+
+/* Live data pills: brighter and signal-coded without changing any decision logic */
+.decisionMetric{padding:8px 13px!important;border-width:2px!important;border-style:solid!important;font-weight:950!important;box-shadow:0 2px 8px rgba(0,0,0,.16)!important;color:#fff!important;text-shadow:0 1px 1px rgba(0,0,0,.10)!important}
+.decisionMetric.metricInfo{background:#1677ff!important;border-color:#8bc1ff!important;color:#fff!important}
+.decisionMetric.metricGood{background:#22c55e!important;border-color:#9af0b8!important;color:#052e16!important;text-shadow:none!important}
+.decisionMetric.metricWatch{background:#facc15!important;border-color:#fff2a6!important;color:#4a3500!important;text-shadow:none!important}
+.decisionMetric.metricBad{background:#ef4444!important;border-color:#ffb0b0!important;color:#fff!important}
 
 .compDash{background:#0b4f9f!important;border:1px solid #538ed8!important;box-shadow:0 5px 14px rgba(0,0,0,.10)!important;color:#fff!important}.compDashHead p,.compDashCard p{color:#dbe8f7!important}.compDashCard{background:#0d5cb8!important;border-color:#5d95dc!important;border-top:3px solid #7eaff0!important}.compMini{background:#125db1!important;color:#fff!important;border:1px solid #679dde!important}.compMini.action{background:#23895b!important;color:#fff!important;border-color:#3db67b!important}
 
@@ -50,7 +57,7 @@ body{background:#083a72!important;color:#fff!important}
 
 .status,.headline,.section,.connectionsHead,.boxTop{color:#fff!important}.dot{box-shadow:0 0 0 2px rgba(255,255,255,.12)!important}.section{border-top:1px solid #4f82c1!important;padding-top:14px!important}.section:first-of-type{border-top-color:transparent!important}
 
-/* Install App switches to navy while the former install blue becomes the app theme */
+/* Install App stays navy while the former install blue remains the app theme */
 .installApp{background:linear-gradient(135deg,#082f49,#0b3d5f)!important;border-color:#315f7d!important;color:#fff!important;box-shadow:0 8px 22px rgba(0,0,0,.18)!important}.installApp .installCopy small{color:#dbeafe!important}.installApp:hover{filter:brightness(1.08)!important}
 
 button,a{transition:background-color .12s ease,border-color .12s ease,box-shadow .12s ease!important}
