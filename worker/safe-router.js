@@ -19,7 +19,7 @@ function dashboardBlock(){
 }
 
 function growthBlock(){return '<link rel="stylesheet" href="/growth-theme.css?v=2"><script src="/conversion-diagnosis.js?v=2" defer></script>';}
-function campaignBlock(){return nav('growth')+'<script src="/campaign-approval.js?v=2" defer></script>';}
+function campaignBlock(){return nav('growth')+'<link rel="stylesheet" href="/campaign-theme.css?v=1"><script src="/campaign-approval.js?v=2" defer></script>';}
 
 async function transform(response,insert){
   if(!response.ok)return response;var type=response.headers.get('content-type')||'';if(!type.includes('text/html'))return response;
